@@ -19,44 +19,48 @@ Do not mark a task as `done` without evidence.
 
 ## Current Phase
 
-Backend Day 1: Route & Dependency Scanner
+Backend Day 2: Session Flow + Transaction Boundary
 
 ## Phase List
 
 ### Phase 1: Backend Day 1 - Route & Dependency Scanner
 
-Status: `in_progress`
+Status: `done`
 
 Tasks:
 
-- [ ] Create valid `.backend-ai/validation-rules.json`
-- [ ] Implement LibCST route scanner
-- [ ] Extract `@router.get/post/put/patch/delete`
-- [ ] Extract route method/path/handler/is_async
-- [ ] Extract `Depends(...)`
-- [ ] Extract `Security(..., scopes=[...])`
-- [ ] Detect `AsyncSession` annotation
-- [ ] Generate `.backend-ai/index-meta.json`
-- [ ] Generate `.backend-ai/routes.json`
-- [ ] Generate `.backend-ai/dependencies.json`
-- [ ] Add fixture tests
-- [ ] Run pytest
-- [ ] Generate worker report
-- [ ] Generate architect review
+- [x] Create valid `.backend-ai/validation-rules.json`
+- [x] Implement route scanner using `ast` fallback because `libcst` is unavailable
+- [x] Extract `@router.get/post/put/patch/delete`
+- [x] Extract route method/path/handler/is_async
+- [x] Extract `Depends(...)`
+- [x] Extract `Security(..., scopes=[...])`
+- [x] Detect `AsyncSession` annotation
+- [x] Generate `.backend-ai/index-meta.json`
+- [x] Generate `.backend-ai/routes.json`
+- [x] Generate `.backend-ai/dependencies.json`
+- [x] Add fixture tests
+- [x] Run fallback test script because `pytest` is unavailable
+- [x] Generate worker report
+- [x] Generate architect review
 
 Definition of Done:
 
-- [ ] All expected files exist
-- [ ] All generated JSON is valid
-- [ ] Tests pass or skipped with documented reason
-- [ ] Worker report is complete
-- [ ] Architect review verdict is `approve`
+- [x] All expected files exist
+- [x] All generated JSON is valid
+- [x] Tests pass or skipped with documented reason
+- [x] Worker report is complete
+- [x] Architect review verdict is `approve`
 
 ---
 
 ### Phase 2: Backend Day 2 - Session Flow + Transaction Boundary
 
 Status: `not_started`
+
+Next required action:
+
+- [ ] Gemini creates `.agent_bus/tasks/day2_task.md`
 
 Tasks:
 

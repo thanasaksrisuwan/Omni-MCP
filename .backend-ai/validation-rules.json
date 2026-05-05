@@ -1,1 +1,60 @@
-﻿
+{
+  "confidence": 1.0,
+  "confidence_threshold": 0.75,
+  "critical_models": [
+    "Reservation",
+    "StockLock",
+    "Payment",
+    "PaymentTransaction",
+    "OutboxEvent"
+  ],
+  "critical_tables": [
+    "reservations",
+    "stock_locks",
+    "payments",
+    "payment_transactions",
+    "outbox_events"
+  ],
+  "fallback_parser": "ast",
+  "generated_at": "2026-05-05T10:40:19.536250Z",
+  "preferred_parser": "libcst",
+  "project_root": "C:\\Users\\Nack\\mcp",
+  "route_methods": [
+    "DELETE",
+    "GET",
+    "PATCH",
+    "POST",
+    "PUT"
+  ],
+  "rules": {
+    "low_confidence": {
+      "risk": "unknown",
+      "status": "needs_manual_review",
+      "threshold": 0.75
+    },
+    "required_dependency_fields": [
+      "kind",
+      "callable",
+      "param",
+      "source_file",
+      "line",
+      "confidence"
+    ],
+    "required_route_fields": [
+      "method",
+      "path",
+      "handler",
+      "is_async",
+      "source_file",
+      "line",
+      "confidence"
+    ]
+  },
+  "schema_version": "1.0.0",
+  "source_hash": "configuration",
+  "statuses": [
+    "ok",
+    "needs_manual_review",
+    "failed"
+  ]
+}

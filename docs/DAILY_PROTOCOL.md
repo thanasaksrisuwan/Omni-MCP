@@ -117,6 +117,38 @@ The worker report must include:
 - unresolved questions
 - next recommended task
 
+## Automated Gemini Review
+
+After Codex writes a worker report, run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/ai_review_gemini.ps1
+```
+
+The script:
+
+- finds the latest `.agent_bus/reports/*_worker_report.md` by default
+- writes a review prompt under `.agent_bus/prompts/`
+- runs Gemini CLI in review-only plan mode
+- writes the result under `.agent_bus/reviews/`
+- exits with a status code that blocks unsafe progress
+
+Exit codes:
+
+- `0`: Gemini returned `approve`
+- `10`: Gemini returned `revise`
+- `20`: Gemini returned `reject`
+- `2`: Gemini CLI failed or was unavailable
+- `3`: Gemini returned invalid review format
+
+If Gemini does not return `approve`, do not proceed to the next phase.
+
+To preview the handoff without calling Gemini:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/ai_review_gemini.ps1 -DryRun
+```
+
 ## Completion Rule
 
 A task is not complete unless evidence exists. Evidence can be:

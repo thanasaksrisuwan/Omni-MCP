@@ -783,6 +783,29 @@ Do not treat empty placeholder files as implementation evidence.
 
 ---
 
+# Automated Gemini Review Handoff
+
+After Codex completes a worker task and writes the worker report:
+
+1. Codex should run `scripts/ai_review_gemini.ps1`.
+2. Gemini must act only as Architect / Reviewer.
+3. Gemini must write review output under `.agent_bus/reviews/`.
+4. Codex must not self-approve its own worker output.
+5. If the review verdict is `approve`, Codex may proceed to the next approved task.
+6. If the review verdict is `revise`, Codex may fix only the listed blocking issues.
+7. If the review verdict is `reject`, Codex must stop broad implementation and wait for a revision task.
+8. If Gemini CLI is unavailable, fails, or returns an invalid review format, the review is treated as blocking.
+
+The review script exit codes are:
+
+- `0`: approve
+- `10`: revise
+- `20`: reject
+- `2`: Gemini command failed or was unavailable
+- `3`: Gemini returned invalid review format
+
+---
+
 # Final Rule
 
 If unsure, report uncertainty.
