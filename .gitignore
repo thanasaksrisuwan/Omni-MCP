@@ -1,12 +1,207 @@
-﻿# AI orchestration runtime artifacts
+﻿# ============================================================
+# Omni-MCP Runtime Artifacts
+# ============================================================
+
+# AI orchestration blackboard / runtime logs
 .agent_bus/
 
-# Generated backend MCP manifests
+# ============================================================
+# Backend MCP Generated Manifests
+# ============================================================
+
+# Generated backend manifests
 .backend-ai/index-meta.json
 .backend-ai/routes.json
 .backend-ai/dependencies.json
 .backend-ai/session-flow.json
 .backend-ai/transaction-boundaries.json
+.backend-ai/api-contracts.json
+.backend-ai/pydantic-models.json
+.backend-ai/sqlalchemy-models.json
+.backend-ai/authorization-map.json
+.backend-ai/capabilities.json
+.backend-ai/state-machines.json
+.backend-ai/side-effects.json
+.backend-ai/outbox-events.json
+.backend-ai/invariants.json
 
-# Keep validation rules as project config
+# Keep backend MCP configuration
 !.backend-ai/validation-rules.json
+!.backend-ai/.gitkeep
+
+# ============================================================
+# Frontend MCP Generated Manifests
+# ============================================================
+
+# Generated frontend manifests
+.frontend-ai/index-meta.json
+.frontend-ai/components.json
+.frontend-ai/props.json
+.frontend-ai/usages.json
+.frontend-ai/tokens.json
+.frontend-ai/assets.json
+.frontend-ai/icons.json
+.frontend-ai/layouts.json
+.frontend-ai/stories.json
+
+# Optional runtime screenshots / visual artifacts
+.frontend-ai/screenshots/
+.frontend-ai/visual-diffs/
+.frontend-ai/playwright/
+.frontend-ai/tmp/
+
+# Keep frontend MCP configuration
+!.frontend-ai/validation-rules.json
+!.frontend-ai/.gitkeep
+
+# ============================================================
+# Python / FastAPI
+# ============================================================
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python build artifacts
+build/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Python tooling caches
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.pyre/
+.pytype/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+.dmypy.json
+dmypy.json
+
+# Test/runtime files
+*.log
+*.pid
+*.seed
+*.sqlite
+*.sqlite3
+local.db
+test.db
+
+# Alembic generated local artifacts, not migrations themselves
+alembic.ini.local
+alembic/.env
+alembic/*.log
+
+# ============================================================
+# Node / React / Vite / TypeScript
+# ============================================================
+
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Package manager stores/caches
+.pnpm-store/
+.npm/
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# Vite / frontend builds
+dist/
+dist-ssr/
+build/
+.vite/
+vite.config.*.timestamp-*
+vite.config.*.mjs.timestamp-*
+
+# TypeScript
+*.tsbuildinfo
+
+# Storybook
+storybook-static/
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+
+# Cypress
+cypress/videos/
+cypress/screenshots/
+
+# ============================================================
+# Environment / Secrets
+# ============================================================
+
+.env
+.env.*
+!.env.example
+!.env.sample
+
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+*.pfx
+
+# ============================================================
+# IDE / Editor
+# ============================================================
+
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.example.json
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ============================================================
+# OS / Misc
+# ============================================================
+
+.cache/
+.tmp/
+tmp/
+temp/
+
+# ============================================================
+# Logs
+# ============================================================
+
+logs/
+*.log

@@ -1,131 +1,1003 @@
 ﻿# Software Requirements Specification (SRS)
-**Project:** FastAPI Backend MCP: Safety-First Reservation System  
-**Version:** 1.0.1 (Final Lock)  
-**Domain:** Retail Reservation (Booking, Stock Locking, Payments)  
+**Project:** Omni-MCP: Frontend + Backend Safety-First AI Engineering System  
+**Version:** 1.0.0  
+**Domain:** React/Vite/TypeScript Frontend + FastAPI Backend + Retail Reservation Safety  
+**Primary Goal:** Make AI coding agents work inside project rules, not hallucinate architecture like a caffeinated intern.
+
+---
 
 ## 1. Introduction
 
 ### 1.1 Purpose
-ระบบนี้คือ **MCP Server + Indexer + Validator** สำหรับช่วย AI Coding Agent ทำงานกับ Backend FastAPI โดยมีเป้าหมายหลักคือ **การรักษา Data Integrity** ของระบบ Retail Reservation
 
-เป้าหมายไม่ใช่ให้ AI "เขียนโค้ดได้เร็วขึ้น" แบบไร้สติ แต่เป็นการ **ลดโอกาส Hallucination ในจุด critical และบังคับให้ AI ตรวจสอบกับ MCP ก่อนแก้โค้ด** เพื่อให้ AI เข้าใจ Contract, Session Flow, Transaction Boundaries, Authorization, State Machine, Idempotency และ Business Invariants ก่อนลงมือแก้ไข
+ระบบนี้คือ **Omni-MCP System** สำหรับช่วย AI Coding Agent ทำงานกับทั้งฝั่ง Frontend และ Backend โดยมีเป้าหมายหลักคือ:
 
-### 1.2 Tech Stack & Assumptions
-* **Framework:** FastAPI (Async-first)
-* **ORM:** SQLAlchemy 2.0 (เน้น `AsyncSession`)
-* **Database:** PostgreSQL
-* **Scanner Engine:** LibCST (Concrete Syntax Tree)
-* **Worker Pattern:** Outbox-first pattern (Worker TBD: ARQ หรือ Celery)
-* **Idempotency:** ผ่าน HTTP Header `X-Idempotency-Key`
+1. ลดการเดาสุ่มของ AI
+2. บังคับให้ AI ตรวจสอบข้อมูลจริงก่อนแก้โค้ด
+3. ป้องกันการสร้าง component, prop, token, route, schema, transaction, หรือ side-effect แบบมั่ว
+4. รักษา Data Integrity ในระบบ Retail Reservation
+5. ทำให้ AI ทำงานผ่าน Manifest, Validator, และ Guardrail แทนการอ่านไฟล์สดแบบไร้ทิศทาง
 
-### 1.3 Definitions
-* **Transaction Owner:** Layer (มักจะเป็น Route หรือ Use-case) ที่มีหน้าที่ถือครอง `async with session.begin():`
-* **Service Layer Commit:** Anti-pattern ที่ Service หรือ Repository แอบเรียก `session.commit()` เอง
-* **Critical Side-effect:** งานที่ข้อมูลหายไม่ได้ เช่น Payment webhook, Inventory sync, Reservation confirmation (ต้องใช้ Outbox Pattern)
-* **Non-critical Side-effect:** งานประเภท Best-effort เช่น ส่งอีเมลการตลาดทั่วไป อนุญาตให้ใช้ `BackgroundTasks` ได้ แต่ต้องทำหลัง Transaction จบเท่านั้น
+ระบบนี้ไม่ได้สร้างมาเพื่อให้ AI “เขียนโค้ดเร็วขึ้นอย่างไร้สติ”  
+แต่สร้างมาเพื่อให้ AI **ผิดพลาดยากขึ้น และตรวจจับความพลาดได้เร็วขึ้น**
 
 ---
 
-## 2. Architecture Overview
+## 2. Scope
 
-สถาปัตยกรรมเป็นแบบ 3-Tier:
+### 2.1 Included
+
+ระบบนี้ครอบคลุม:
+
+- React + Vite + TypeScript frontend
+- Component discovery
+- Design token validation
+- Icon / asset catalog
+- Component prop signature extraction
+- Component usage graph
+- UI validation loop
+- FastAPI backend
+- SQLAlchemy AsyncSession
+- PostgreSQL
+- Transaction boundary validation
+- Session flow graph
+- Authorization map
+- Reservation state machine
+- Idempotency validation
+- Outbox pattern validation
+- AI Agent orchestration between Gemini CLI and Codex CLI
+
+### 2.2 Excluded from MVP
+
+ใน MVP ไม่รวม:
+
+- Automated production deployment
+- Destructive database operations
+- Automated schema migrations
+- Full visual regression system
+- Full runtime browser inspection
+- Full distributed tracing
+- Automatic refactor across entire codebase
+- AI editing business code without validator pass
+
+เพราะเราทำวิศวกรรม ไม่ใช่เรียกปีศาจผ่าน YAML
+
+---
+
+## 3. System Architecture
 
 ```text
-[ FastAPI Codebase ]
+[ Project Codebase ]
         ↓
-[ Indexer (LibCST & Metadata Scanners) ]
-    ├── Route & Dependency Scanner
-    ├── Session Flow Tracker
-    └── Domain Invariant Scanner (Phase 2+)
+[ Indexers ]
+    ├── Frontend Indexer
+    │   ├── ts-morph
+    │   ├── Storybook Scanner
+    │   ├── Tailwind / Token Scanner
+    │   └── Usage Graph Builder
+    │
+    └── Backend Indexer
+        ├── LibCST Scanner
+        ├── FastAPI Route Scanner
+        ├── SQLAlchemy Metadata Scanner
+        └── Session Flow Tracker
         ↓
-[ Atomic Manifest Store (.backend-ai/*.json) ]
+[ Atomic Manifest Stores ]
+    ├── .frontend-ai/*.json
+    └── .backend-ai/*.json
         ↓
 [ MCP Server ]
-    ├── Discovery Tools
-    ├── Session/Transaction Validators
-    └── Security & Invariant Validators (Phase 2+)
+    ├── Frontend Tools
+    ├── Backend Tools
+    ├── Validation Tools
+    └── Orchestration Tools
         ↓
-[ AI Agent ]
+[ AI Agents ]
+    ├── Gemini CLI: Architect / Reviewer
+    └── Codex CLI: Worker / Implementer
 ```
 
 ---
 
-## 3. Atomic Manifest Files
+## 4. Shared Design Principles
 
-ระบบต้องสร้าง Directory `.backend-ai/` และห้ามเก็บข้อมูลทั้งหมดรวมในไฟล์เดียว
+### 4.1 Manifest First
 
-* **MF-001:** Manifest ทุกไฟล์ต้องมี `generated_at`, `source_hash`, `project_root`, `schema_version`
-* **MF-002:** ทุกข้อมูลที่ได้จากการ Infer หรือสแกนแบบไม่สมบูรณ์ ต้องมี `confidence`
-* **MF-003:** Week 1 Manifests & Config ที่อนุญาตให้สร้างและเรียกใช้งาน:
-  * `index-meta.json` (Manifest)
-  * `routes.json` (Manifest)
-  * `dependencies.json` (Manifest)
-  * `session-flow.json` (Manifest - เริ่มทำ Day 2)
-  * `transaction-boundaries.json` (Manifest - เริ่มทำ Day 2)
-  * `validation-rules.json` (Configuration)
+AI must not inspect the full codebase blindly.
 
----
+AI must query generated manifests first:
 
-## 4. Functional Requirements
+```text
+.frontend-ai/
+.backend-ai/
+```
 
-### 4.1 Project Indexing & Discovery
-* **FR-IDX-001 [Index Project]:** Tool `backend.index_project` สแกนโปรเจกต์ด้วย LibCST เพื่อสร้าง Manifests
-* **FR-API-001 [API Contract - Phase 2]:** Tool `backend.get_api_contract` ดึง Schema จาก Pydantic Model  
-  *หมายเหตุ: ใน Week 1 จะบันทึกแค่ชื่อ Request/Response model หากมองเห็นได้ชัดเจนเท่านั้น การ Extract Full JSON Schema ถูกยกไป Phase 2*
+### 4.2 Validation Before Final Answer
 
-### 4.2 Session Flow & Transaction Safety (Week 1 Core)
-* **FR-SES-001 [Session Flow]:** Tool `backend.get_session_flow` ต้องตอบได้ว่า Route รับ Session จาก Dependency ไหน, Session เป็น Sync หรือ Async, และใครคือ Transaction Owner
-* **FR-TX-001 [Transaction Validator]:** Tool `backend.validate_transaction_usage` ต้องตรวจสอบกฎเกณฑ์ต่อไปนี้ พร้อมคืนค่า **Structured Fix**
+AI must run relevant validators before claiming work is complete.
 
-| Rule Code | Severity | Description & Logic |
-| :--- | :--- | :--- |
-| **TX001** | ERROR | **Service/Repository Commit:** พบ `session.commit()` ในชั้น `services/` หรือ `repositories/` |
-| **TX002** | ERROR | **Multi-table Write Without TX:** เขียน Critical Tables มากกว่า 1 ตารางโดยไม่มี Transaction boundary ครอบ |
-| **TX003** | ERROR | **Side-effect Inside TX:** พบ `background_tasks.add_task()` หรือการเรียก side-effect ภายใต้บล็อก Transaction |
-| **TX004** | ERROR | **Commit Before Complete:** Commit เกิดขึ้นก่อนที่ Critical Mutation จะครบ *(Week 1 Best-effort: ถ้า confidence < 0.75 ให้ return needs_manual_review)* |
-| **TX005** | ERROR | **Multiple Owners:** พบการเปิด/ปิด Transaction หลายระดับใน Flow เดียวกัน |
-| **TX006** | ERROR | **Async/Sync Mismatch:** ตรวจจับโดยใช้ `cst.With.asynchronous is not None` เพื่อหาการใช้ `AsyncSession` ร่วมกับ `with` ธรรมดา หรือสลับกัน |
-| **TX007** | ERROR | **Shared AsyncSession:** ตรวจพบการส่ง `AsyncSession` ตัวเดียวกันเข้าไปใน Concurrent tasks เช่น `asyncio.gather()` |
+### 4.3 Confidence Policy
 
-### 4.3 Domain Safety Requirements (Phase 2+)
-* **FR-AUTH-001:** `backend.validate_authorization` ตรวจสอบ Route ที่ Mutate ข้อมูลสำคัญว่ามี Security Scope ครบถ้วน
-* **FR-STATE-001:** `backend.validate_state_transition` ป้องกันการเปลี่ยนสถานะข้ามสเต็ป เช่น Draft -> Confirmed
-* **FR-IDEMP-001:** `backend.validate_idempotency` ตรวจสอบ Endpoint สร้างข้อมูลว่ารองรับ `X-Idempotency-Key`
-* **FR-OUTBOX-001:** `backend.validate_outbox_usage` ตรวจสอบว่า Critical side-effects ใช้ OutboxEvent เสมอ ห้ามใช้ BackgroundTasks
-* **FR-INV-001:** `backend.validate_reservation_invariants` ตรวจสอบ Business Invariants เช่น Cancelled = Released Stock
+Any inferred data must include:
 
----
+```json
+{
+  "confidence": 0.0,
+  "provenance": "static-analysis | manual-jsdoc | manifest | runtime-introspection"
+}
+```
 
-## 5. Outbox Data Requirement (FR-OUTBOX-DATA-001)
+If confidence is below `0.75`, the tool must return:
 
-ตาราง `outbox_events` ต้องมี Schema ดังนี้:
+```json
+{
+  "status": "needs_manual_review",
+  "risk": "unknown"
+}
+```
 
-* `id` (PK)
-* `event_type` (str)
-* `aggregate_type` (str)
-* `aggregate_id` (str/UUID)
-* `idempotency_key` (str)
-* `payload_json` (JSONB)
-* `status` (Enum: pending, processing, processed, failed)
-* **Unique Constraint:** ต้องมีการบังคับใช้อย่างน้อย `unique(event_type, idempotency_key)`
+AI must not report `safe` when analysis is incomplete.  
+อย่าทำตัวเป็นหมอดูใส่ JSON
+
+### 4.4 Read-only MVP
+
+MVP tools are read-only against:
+
+- Source code
+- Database records
+- Migrations
+- Configuration files
+
+MVP tools may write generated manifest files under:
+
+```text
+.frontend-ai/
+.backend-ai/
+.agent_bus/
+```
 
 ---
 
-## 6. Non-Functional Requirements (NFRs)
-
-* **NFR-001:** MCP Tools ต้องทำงานแบบ **Read-only ต่อ Source Code, Database, Migrations, และ Configuration Files ใน MVP** เครื่องมือสามารถเขียนหรืออัปเดต Generated Manifest Files ภายใต้ `.backend-ai/` ได้เท่านั้น
-* **NFR-002:** Validation Output ต้องเป็น **Structured JSON** เพื่อให้ AI ทำ Self-correction ได้
-* **NFR-003:** Tool Response ต้องพ่วงค่า `confidence` หากเป็นข้อมูล Inferred Data
-* **NFR-004:** LibCST Scanner must not modify source files in MVP. If future codemod tools are added, they must preserve formatting, whitespace, and comments.
+# Part A: Frontend MCP SRS
 
 ---
 
-## 7. AGENTS.md Requirements
+## 5. Frontend MCP Purpose
 
-กฎการใช้งาน Agent ที่ต้องฝังไว้ใน Repository:
+Frontend MCP ทำให้ AI เข้าใจระบบ UI จริงของโปรเจกต์ ไม่ใช่เดา component, prop, token, icon, หรือ layout เอง
+
+เป้าหมาย:
+
+- ใช้ existing components ก่อนสร้างใหม่
+- ใช้ design tokens ถูกต้อง
+- ใช้ prop / variant / icon ที่มีจริง
+- copy usage pattern จาก codebase เดิม
+- validate JSX หลังแก้โค้ด
+- ลดการสร้าง `CustomButton`, `FancyCard`, `BetterTable` แบบเชื้อรา repo
+
+---
+
+## 6. Frontend Tech Stack
+
+- React
+- Vite
+- TypeScript
+- Tailwind CSS หรือ Design Token System
+- Optional: Storybook
+- Optional Phase 3: Playwright MCP
+
+---
+
+## 7. Frontend Atomic Manifests
+
+ระบบต้องสร้าง directory:
+
+```text
+.frontend-ai/
+├── index-meta.json
+├── components.json
+├── props.json
+├── usages.json
+├── tokens.json
+├── assets.json
+├── icons.json
+├── layouts.json
+├── stories.json
+└── validation-rules.json
+```
+
+### 7.1 Manifest Requirements
+
+ทุก manifest ต้องมี:
+
+```json
+{
+  "schema_version": "1.0.0",
+  "generated_at": "ISO-8601",
+  "project_root": "...",
+  "source_hash": "...",
+  "confidence": 0.0
+}
+```
+
+---
+
+## 8. Frontend Indexer Requirements
+
+### FR-FE-IDX-001: Index Project
+
+Tool:
+
+```text
+frontend.index_project
+```
+
+ต้อง scan:
+
+- `src/**/*.tsx`
+- `src/**/*.ts`
+- component exports
+- prop types
+- JSDoc metadata
+- Storybook stories
+- Tailwind config
+- theme token files
+- icon exports
+- actual component usages
+
+Output:
+
+```json
+{
+  "status": "ok",
+  "components": 128,
+  "tokens": 214,
+  "icons": 76,
+  "warnings": [
+    "12 components missing @ai.intent"
+  ]
+}
+```
+
+---
+
+## 9. Frontend Metadata Convention
+
+Component สำคัญควรมี metadata:
+
+```tsx
+/**
+ * @ai.component ui.button
+ * @ai.intent primary action, secondary action, form submit
+ * @ai.avoid navigation link, row action menu
+ * @ai.status stable
+ * @ai.a11y icon-only usage requires aria-label
+ */
+export function Button(props: ButtonProps) {
+  // ...
+}
+```
+
+### 9.1 Metadata Fields
+
+| Field | Required | Meaning |
+|---|---:|---|
+| `@ai.component` | yes | stable component id |
+| `@ai.intent` | yes | when to use |
+| `@ai.avoid` | recommended | when not to use |
+| `@ai.status` | recommended | stable / beta / deprecated |
+| `@ai.a11y` | optional | accessibility rules |
+| `@ai.replaces` | optional | legacy replacement |
+
+---
+
+## 10. Frontend MCP Tools
+
+### 10.1 `frontend.search_components`
+
+Purpose:
+
+ค้นหา component จาก intent ไม่ใช่ชื่อไฟล์
+
+Input:
+
+```json
+{
+  "intent": "delete action button in table row",
+  "context_path": "src/features/inventory",
+  "limit": 5
+}
+```
+
+Output:
+
+```json
+{
+  "results": [
+    {
+      "component_id": "ui.button",
+      "name": "Button",
+      "import_path": "@/components/ui/Button",
+      "score": 0.91,
+      "why": "Supports danger variant and is commonly used for destructive actions",
+      "recommended_props": {
+        "variant": "danger"
+      },
+      "confidence": 0.9
+    }
+  ]
+}
+```
+
+---
+
+### 10.2 `frontend.get_prop_signature`
+
+Purpose:
+
+ให้ AI เห็น props จริงก่อน import component
+
+Input:
+
+```json
+{
+  "component_id": "ui.button"
+}
+```
+
+Output:
+
+```json
+{
+  "component_id": "ui.button",
+  "props_type": "ButtonProps",
+  "props": {
+    "variant": {
+      "type": "\"primary\" | \"secondary\" | \"ghost\" | \"danger\"",
+      "required": false,
+      "allowed_values": ["primary", "secondary", "ghost", "danger"],
+      "default": "primary"
+    },
+    "loading": {
+      "type": "boolean",
+      "required": false
+    }
+  },
+  "confidence": 0.95
+}
+```
+
+---
+
+### 10.3 `frontend.find_component_usages`
+
+Purpose:
+
+หา usage จริงใน codebase เพื่อให้ AI copy pattern เดิม
+
+Input:
+
+```json
+{
+  "component_id": "ui.button",
+  "context": "destructive action",
+  "limit": 5
+}
+```
+
+Output:
+
+```json
+{
+  "usages": [
+    {
+      "file": "src/features/assets/DeleteAssetButton.tsx",
+      "line": 42,
+      "summary": "Danger button inside confirm dialog footer",
+      "props_used": {
+        "variant": "danger",
+        "loading": "isDeleting"
+      },
+      "confidence": 0.88
+    }
+  ]
+}
+```
+
+---
+
+### 10.4 `frontend.get_design_tokens`
+
+Purpose:
+
+ให้ AI ใช้ token จริง ไม่ใช่ `bg-blue-500` ตามใจจักรวาล
+
+Input:
+
+```json
+{
+  "groups": ["color", "spacing", "radius", "typography"]
+}
+```
+
+Output:
+
+```json
+{
+  "colors": {
+    "primary": {
+      "class": "text-primary",
+      "background_class": "bg-primary",
+      "usage": "Main brand actions"
+    },
+    "destructive": {
+      "class": "text-destructive",
+      "background_class": "bg-destructive",
+      "usage": "Danger actions"
+    }
+  }
+}
+```
+
+---
+
+### 10.5 `frontend.list_assets`
+
+Purpose:
+
+กัน AI hallucinate icon หรือ asset path
+
+Input:
+
+```json
+{
+  "query": "chevron right next arrow",
+  "kind": "icon",
+  "limit": 10
+}
+```
+
+Output:
+
+```json
+{
+  "assets": [
+    {
+      "name": "IconArrowRight",
+      "kind": "icon",
+      "import_path": "@/components/icons",
+      "aliases": ["next", "chevron right", "forward"]
+    }
+  ]
+}
+```
+
+---
+
+### 10.6 `frontend.get_layout_patterns`
+
+Purpose:
+
+ให้ AI ใช้ layout pattern เดิมของ project
+
+Input:
+
+```json
+{
+  "intent": "management list page"
+}
+```
+
+Output:
+
+```json
+{
+  "patterns": [
+    {
+      "pattern_id": "page.list-management",
+      "tree": [
+        "PageContainer",
+        "PageHeader",
+        "Toolbar",
+        "Card",
+        "DataTable"
+      ],
+      "examples": [
+        "src/features/assets/AssetListPage.tsx"
+      ]
+    }
+  ]
+}
+```
+
+---
+
+### 10.7 `frontend.validate_ui_code`
+
+Purpose:
+
+ตรวจ code ที่ AI แก้ก่อนส่งงาน
+
+Checks:
+
+- import path
+- component existence
+- prop required
+- prop allowed values
+- design token usage
+- icon existence
+- deprecated component
+- accessibility basic rules
+
+Output:
+
+```json
+{
+  "status": "failed",
+  "issues": [
+    {
+      "severity": "error",
+      "code": "INVALID_PROP_VALUE",
+      "file": "src/features/inventory/InventoryPage.tsx",
+      "line": 57,
+      "component_id": "ui.button",
+      "message": "Button variant \"red\" does not exist.",
+      "suggested_fix": "Use variant=\"danger\""
+    }
+  ]
+}
+```
+
+---
+
+## 11. Frontend Validation Rules
+
+### FE001 Unknown Component
+
+AI imported a component that does not exist.
+
+### FE002 Invalid Import Path
+
+Import path does not match manifest.
+
+### FE003 Invalid Prop Value
+
+Prop literal value does not match allowed union.
+
+### FE004 Missing Required Prop
+
+Required prop missing.
+
+### FE005 Unknown Icon
+
+Icon is not exported from icon catalog.
+
+### FE006 Unknown Token
+
+Tailwind class or token is not in token registry.
+
+### FE007 Deprecated Component
+
+Component status is deprecated.
+
+### FE008 Dynamic Tailwind Class Risk
+
+Detected dynamic class construction:
+
+```tsx
+<div className={`bg-${color}-500`} />
+```
+
+Validator should warn or fail depending on config.
+
+---
+
+## 12. Frontend Week 1 Scope
+
+Frontend Week 1 MVP:
+
+```text
+frontend.index_project
+frontend.search_components
+frontend.get_prop_signature
+frontend.validate_ui_code
+```
+
+Out of scope:
+
+- visual screenshot validation
+- Playwright MCP
+- Storybook runtime render
+- full AST code modification
+- design token migration
+- automatic component refactor
+
+---
+
+# Part B: Backend MCP SRS
+
+---
+
+## 13. Backend MCP Purpose
+
+Backend MCP ป้องกัน AI ทำ data state พัง
+
+เป้าหมาย:
+
+- ตรวจ session flow
+- ตรวจ transaction boundary
+- ตรวจ hidden commit
+- ตรวจ authorization
+- ตรวจ idempotency
+- ตรวจ state transition
+- ตรวจ reservation invariants
+- ตรวจ side-effect timing
+- บังคับใช้ outbox pattern สำหรับงาน critical
+
+---
+
+## 14. Backend Tech Stack
+
+- FastAPI
+- SQLAlchemy 2.0
+- AsyncSession-first
+- PostgreSQL
+- LibCST
+- Pydantic v2
+- Outbox-first side-effect processing
+- Worker TBD: ARQ หรือ Celery
+
+---
+
+## 15. Backend Atomic Manifests
+
+```text
+.backend-ai/
+├── index-meta.json
+├── routes.json
+├── dependencies.json
+├── session-flow.json
+├── transaction-boundaries.json
+├── validation-rules.json
+├── api-contracts.json
+├── pydantic-models.json
+├── sqlalchemy-models.json
+├── authorization-map.json
+├── capabilities.json
+├── state-machines.json
+├── side-effects.json
+├── outbox-events.json
+└── invariants.json
+```
+
+Week 1 allowed:
+
+```text
+.backend-ai/
+├── index-meta.json
+├── routes.json
+├── dependencies.json
+├── validation-rules.json
+```
+
+Day 2 starts:
+
+```text
+.backend-ai/
+├── session-flow.json
+└── transaction-boundaries.json
+```
+
+---
+
+## 16. Backend Session Flow Requirements
+
+### FR-BE-SES-001: `backend.get_session_flow`
+
+Tool must answer:
+
+- route receives session from which dependency
+- session type: `Session` or `AsyncSession`
+- route handler async or sync
+- transaction owner
+- session operations:
+  - `add`
+  - `delete`
+  - `execute`
+  - `flush`
+  - `commit`
+  - `rollback`
+  - `begin`
+- whether operation is inside transaction block
+- whether side-effect is inside transaction block
+
+Output:
+
+```json
+{
+  "entrypoint": "POST /reservations",
+  "handler": "app.api.reservations.create_reservation",
+  "session_dependency": "get_session",
+  "session_type": "AsyncSession",
+  "transaction_owner": "app.api.reservations.create_reservation",
+  "transaction_pattern": "async with session.begin()",
+  "commits_found": [],
+  "flushes_found": [
+    {
+      "file": "app/services/reservation.py",
+      "line": 22,
+      "context": "await session.flush()",
+      "risk": "allowed_if_inside_transaction"
+    }
+  ],
+  "risk": "low",
+  "confidence": 0.82
+}
+```
+
+---
+
+## 17. Backend Transaction Rules
+
+Tool:
+
+```text
+backend.validate_transaction_usage
+```
+
+### TX001 Service / Repository Commit
+
+Error if `session.commit()` found inside:
+
+```text
+services/
+repositories/
+```
+
+Suggested fix:
+
+```text
+Remove commit from service/repository. Let route/use-case own transaction boundary.
+```
+
+### TX002 Multi-table Write Without Transaction
+
+Error if writes touch more than one critical model without transaction boundary.
+
+Critical models come from:
+
+```text
+.backend-ai/validation-rules.json
+```
+
+### TX003 Side-effect Inside Transaction
+
+Error if any of these occurs inside transaction:
+
+- `background_tasks.add_task`
+- email call
+- webhook call
+- queue dispatch
+- external API call
+
+### TX004 Commit Before Complete
+
+Best-effort in Week 1.
+
+If confidence < 0.75, return:
+
+```json
+{
+  "status": "needs_manual_review"
+}
+```
+
+### TX005 Multiple Transaction Owners
+
+Error if route and service/repository both begin/commit transaction.
+
+### TX006 Async / Sync Mismatch
+
+Must inspect:
+
+```python
+cst.With.asynchronous is not None
+```
+
+Rules:
+
+- `AsyncSession` requires `async with session.begin():`
+- sync `Session` requires `with session.begin():`
+
+### TX007 Shared AsyncSession in Concurrent Tasks
+
+Error if one `AsyncSession` is passed into:
+
+```python
+asyncio.gather(...)
+asyncio.create_task(...)
+```
+
+---
+
+## 18. Backend Authorization Requirements
+
+### FR-BE-AUTH-001: `backend.get_authorization_map`
+
+Must extract:
+
+- `Depends(...)`
+- `Security(...)`
+- scopes
+- current user dependencies
+- route-level dependencies
+- router-level dependencies where visible
+
+Output:
+
+```json
+{
+  "route": "POST /reservations",
+  "dependencies": ["get_current_user"],
+  "security": [
+    {
+      "type": "scope",
+      "value": "reservation:create"
+    }
+  ],
+  "authorization_status": "protected"
+}
+```
+
+### FR-BE-AUTH-002: `backend.validate_authorization`
+
+Critical mutating routes must not be unprotected.
+
+---
+
+## 19. Backend Idempotency Requirements
+
+### FR-BE-IDEMP-001: `backend.validate_idempotency`
+
+Must verify:
+
+- Create reservation endpoint accepts `X-Idempotency-Key`
+- Payment webhook / confirmation flow is idempotent
+- Key is persisted in durable store
+- Unique constraint exists
+- Retry returns same result, not duplicate write
+
+---
+
+## 20. Backend State Machine Requirements
+
+### Reservation States
+
+Default state model:
+
+```text
+draft
+→ pending_payment
+→ paid
+→ confirmed
+→ fulfilled
+```
+
+Special terminal or side states:
+
+```text
+cancelled
+expired
+refunded
+```
+
+### FR-BE-STATE-001: `backend.validate_state_transition`
+
+Must prevent:
+
+- `draft -> confirmed`
+- `pending_payment -> confirmed`
+- `paid -> expired`
+- terminal state returning active
+- hardcoded status strings if Enum exists
+
+---
+
+## 21. Backend Reservation Invariants
+
+Tool:
+
+```text
+backend.validate_reservation_invariants
+```
+
+Rules:
+
+| Code | Rule |
+|---|---|
+| INV001 | expired reservation must not have active stock locks |
+| INV002 | paid reservation must have settled payment |
+| INV003 | confirmed reservation must have valid stock lock or consumed stock |
+| INV004 | cancelled reservation must release stock |
+| INV005 | refunded reservation must link to refund transaction |
+| INV006 | expiration must be idempotent |
+| INV007 | stock lock quantity must not exceed available quantity |
+
+---
+
+## 22. Backend Outbox Requirements
+
+Critical side-effects must use Outbox Pattern.
+
+### `outbox_events` Schema
+
+```text
+id
+event_type
+aggregate_type
+aggregate_id
+idempotency_key
+payload_json
+status
+attempt_count
+next_retry_at
+processed_at
+created_at
+updated_at
+last_error
+```
+
+Minimum unique constraint:
+
+```sql
+unique(event_type, idempotency_key)
+```
+
+### Critical Side-effects
+
+Must use outbox:
+
+- payment confirmation
+- inventory sync
+- reservation confirmation
+- stock release confirmation
+- webhook delivery
+
+### Non-critical Side-effects
+
+May use `BackgroundTasks` after transaction completion:
+
+- marketing email
+- low priority notification
+- best-effort analytics ping
+
+---
+
+# Part C: Shared AGENTS Rules
+
+---
+
+## 23. `AGENTS.md`
 
 ```markdown
-## FastAPI Backend MCP Rules (Safety-First)
+## Omni-MCP Rules
+
+1. Use MCP tools before editing.
+2. Do not guess component names, prop names, table names, route names, permissions, or transaction rules.
+3. If confidence is below 0.75, inspect files manually before editing.
+4. Never report unsafe or incomplete analysis as safe.
+
+## Frontend Rules
+
+1. Before creating or modifying UI, call `frontend.search_components`.
+2. Before importing a component, call `frontend.get_prop_signature`.
+3. Before using icons/assets, call `frontend.list_assets`.
+4. Before writing styles, call `frontend.get_design_tokens`.
+5. Prefer existing components over new UI primitives.
+6. After editing UI, run `frontend.validate_ui_code`.
+7. Fix all blocking frontend validation errors before final response.
+
+## Backend Rules
 
 1. Before changing business logic, call `backend.get_session_flow`.
 2. Identify the transaction owner before editing.
@@ -135,124 +1007,84 @@
 6. Do not schedule `BackgroundTasks`, email, webhook, or queue calls inside transaction blocks.
 7. Do not use `BackgroundTasks` for critical durable side-effects. Use OutboxEvent.
 8. Do not share one `AsyncSession` across concurrent tasks.
-9. After editing, run `backend.validate_transaction_usage`.
-10. Fix all blocking TX errors before final response.
-11. If MCP confidence is below 0.75, inspect the relevant files manually before editing.
+9. After editing backend code, run `backend.validate_transaction_usage`.
+10. Fix all blocking backend validation errors before final response.
 ```
 
 ---
 
-## 8. Implementation Boundaries
-
-### 8.1 Week 1 Scope
-Week 1 ถูกจำกัดขอบเขตอยู่แค่ Route scanning, Dependency scanning, Session-flow extraction และ Transaction usage validation
-
-**สิ่งที่อยู่นอกขอบเขต (Out of Scope) สำหรับ Week 1:**
-
-* Full Pydantic JSON Schema extraction (FR-API-001 ฉบับเต็ม)
-* Live database introspection
-* Outbox worker implementation
-* State machine validator
-* Full domain invariant validator
-* Automated code modification
-
-### 8.2 Confidence Policy
-หากผลการวิเคราะห์ (Analysis Confidence) มีค่าต่ำกว่า 0.75, Validator **ห้ามรายงานผลเป็น Safe โดยเด็ดขาด**
-
-ระบบจะต้อง Return:
-
-* `status: "needs_manual_review"`
-* `risk: "unknown"`
-* ระบุ Warning ชี้แจงส่วนที่ไม่สามารถ Resolve ได้อย่างชัดเจน
-
-### 8.3 Critical Model Configuration
-Transaction Validation Rules (FR-TX-001) ต้องอ้างอิงจาก Configured List เสมอ (ห้ามเดาเอง)
-
-สร้างไฟล์ `.backend-ai/validation-rules.json` โดยมีค่า Default Critical Models ดังนี้:
-
-* `Reservation` (Table: `reservations`)
-* `StockLock` (Table: `stock_locks`)
-* `Payment` (Table: `payments`)
-* `PaymentTransaction` (Table: `payment_transactions`)
-* `OutboxEvent` (Table: `outbox_events`)
-
-### 8.4 Read-only MVP
-MCP Tools ทั้งหมดใน Week 1 เป็น Read-only ต่อ Source Code และ Database
-
-เครื่องมือสามารถอ่าน Source Files และสร้างหรืออัปเดต Manifest Files ภายใต้ `.backend-ai/` ได้
-
-แต่ห้ามแก้ไข Source Files, Database Records, Migrations, หรือ Configuration Files โดยเด็ดขาด
+# Part D: AI Agent Orchestration SRS
 
 ---
 
-## 9. Operational Readiness Requirements
+## 24. Orchestration Purpose
 
-### 9.1 Runtime Artifacts
-`.agent_bus/` is runtime-only and MUST NOT be committed.
+AI agent orchestration uses blackboard pattern to coordinate Gemini CLI and Codex CLI.
 
-Generated manifests under `.backend-ai/` are runtime artifacts except `.backend-ai/validation-rules.json`, which MAY be versioned as project configuration.
-
-### 9.2 Script Post-conditions
-Day 1 orchestration scripts MUST verify that the following files exist after worker execution:
-
-* `.backend-ai/index-meta.json`
-* `.backend-ai/routes.json`
-* `.backend-ai/dependencies.json`
-* `.backend-ai/validation-rules.json`
-* `.agent_bus/reports/day1_worker_report.md`
-
-Generated JSON files MUST be valid JSON.
-
-### 9.3 Tool Smoke Tests
-Before running implementation, orchestration scripts SHOULD verify that Gemini CLI, Codex CLI, Python, and pytest are available.
-
-### 9.4 SRS Integrity
-Worker agents MUST NOT modify `docs/SRS.md` to match their implementation. If the worker finds a contradiction, it must report it in `.agent_bus/reports/`.
+```text
+Gemini = Architect / Reviewer
+Codex = Worker / Implementer
+.agent_bus = shared blackboard
+docs/SRS.md = law
+AGENTS.md = runtime discipline
+```
 
 ---
 
-## 10. Acceptance Criteria for Day 1
+## 25. Blackboard Directory
 
-### AC-001 Route Detection
-The scanner must detect FastAPI route decorators:
+```text
+.agent_bus/
+├── prompts/
+├── tasks/
+├── reports/
+├── logs/
+└── reviews/
+```
 
-* `@router.get`
-* `@router.post`
-* `@router.put`
-* `@router.patch`
-* `@router.delete`
+`.agent_bus/` must not be committed.
 
-### AC-002 Route Metadata
-For each detected route, scanner must extract:
+---
 
-* HTTP method
-* path
-* handler name
-* whether handler is async
-* source file
-* line number
-* confidence
+## 26. Role Definition
 
-### AC-003 Dependency Detection
-Scanner must extract direct parameter-level dependencies:
+### Gemini CLI
 
-* `Depends(...)`
-* `Security(...)`
+Responsibilities:
 
-### AC-004 Session Detection
-Scanner must detect SQLAlchemy session parameter annotation:
+- read SRS
+- create task spec
+- review implementation
+- detect scope creep
+- reject unsafe implementation
 
-* `AsyncSession`
-* `Session`
+Forbidden:
 
-### AC-005 Security Scope Detection
-Scanner must extract scopes from direct `Security(..., scopes=[...])` usage where statically visible.
+- writing implementation code
+- expanding scope
+- editing SRS to match implementation
 
-### AC-006 Read-only Guarantee
-The scanner must not modify source files.
+### Codex CLI
 
-### AC-007 Output Files
-At the end of Day 1, the following files must exist:
+Responsibilities:
+
+- implement task spec
+- add tests
+- run tests
+- generate reports
+
+Forbidden:
+
+- deciding architecture
+- expanding scope
+- modifying SRS
+- touching business code unless task requires it
+
+---
+
+## 27. Day 1 Backend Orchestration Output
+
+Expected:
 
 ```text
 .backend-ai/
@@ -260,19 +1092,195 @@ At the end of Day 1, the following files must exist:
 ├── routes.json
 ├── dependencies.json
 └── validation-rules.json
+
+.agent_bus/
+├── tasks/day1_task.md
+├── reports/day1_worker_report.md
+├── reviews/day1_review.md
+└── logs/
 ```
 
 ---
 
-## 11. Day 1 Definition of Done
+## 28. Operational Readiness Requirements
 
-Day 1 is complete only when:
+### OR-001
 
-* Route fixture test passes
-* `routes.json` is valid JSON
-* `dependencies.json` is valid JSON
-* `index-meta.json` is valid JSON
-* `validation-rules.json` is valid JSON
-* Each route record includes `source_file`, `line`, and `confidence`
-* No source code outside scanner implementation/tests is modified
-* `.agent_bus/reports/day1_worker_report.md` exists after orchestration run
+Scripts must verify required files exist.
+
+### OR-002
+
+Scripts must validate generated JSON.
+
+### OR-003
+
+Scripts must support dry-run mode.
+
+### OR-004
+
+Scripts must warn when git working tree is dirty.
+
+### OR-005
+
+Scripts must not claim success if post-conditions fail.
+
+---
+
+# Part E: Roadmap
+
+---
+
+## 29. Phase 1: Backend Day 1
+
+Goal:
+
+```text
+Route & Dependency Scanner
+```
+
+Deliverables:
+
+```text
+routes.json
+dependencies.json
+index-meta.json
+validation-rules.json
+```
+
+---
+
+## 30. Phase 2: Backend Session Safety
+
+Goal:
+
+```text
+Session Flow + Transaction Boundary
+```
+
+Deliverables:
+
+```text
+session-flow.json
+transaction-boundaries.json
+backend.get_session_flow
+backend.validate_transaction_usage
+```
+
+---
+
+## 31. Phase 3: Backend Reservation Safety
+
+Goal:
+
+```text
+State + Idempotency + Outbox + Invariants
+```
+
+Deliverables:
+
+```text
+backend.validate_state_transition
+backend.validate_idempotency
+backend.validate_outbox_usage
+backend.validate_reservation_invariants
+```
+
+---
+
+## 32. Phase 4: Frontend Week 1
+
+Goal:
+
+```text
+Component Semantic Graph
+```
+
+Deliverables:
+
+```text
+components.json
+props.json
+tokens.json
+assets.json
+frontend.search_components
+frontend.get_prop_signature
+frontend.validate_ui_code
+```
+
+---
+
+## 33. Phase 5: Frontend Usage + Layout
+
+Goal:
+
+```text
+Usage graph + layout patterns
+```
+
+Deliverables:
+
+```text
+usages.json
+layouts.json
+frontend.find_component_usages
+frontend.get_layout_patterns
+```
+
+---
+
+## 34. Phase 6: Runtime / Visual
+
+Goal:
+
+```text
+Optional visual/runtime validation
+```
+
+Deliverables:
+
+```text
+Storybook integration
+Playwright MCP
+a11y snapshot
+visual check
+```
+
+---
+
+# Part F: Final Acceptance Criteria
+
+---
+
+## 35. Global Acceptance Criteria
+
+The Omni-MCP system is acceptable when:
+
+- AI can query existing frontend components before creating UI
+- AI can validate prop/token/icon usage
+- AI can trace backend route/session flow
+- AI can detect service-layer commit
+- AI can detect unsafe transaction pattern
+- AI can detect missing idempotency on critical flows
+- AI can detect critical side-effect without outbox
+- all validator outputs are structured JSON
+- confidence below 0.75 blocks safe claims
+- orchestration logs are stored in `.agent_bus/`
+- generated manifests are valid JSON
+- no MVP tool modifies business source code or production DB
+
+---
+
+## 36. Final Rule
+
+If the MCP system is unsure, it must say:
+
+```json
+{
+  "status": "needs_manual_review",
+  "risk": "unknown"
+}
+```
+
+It must never pretend uncertainty is safety.
+
+เพราะการบอกว่า “น่าจะปลอดภัย” โดยไม่มีหลักฐาน คือวิธีที่ระบบ production ใช้เขียนจดหมายลาตายล่วงหน้า
