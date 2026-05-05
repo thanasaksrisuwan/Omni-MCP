@@ -1,0 +1,12 @@
+﻿# AI orchestration runtime artifacts
+.agent_bus/
+
+# Generated backend MCP manifests
+.backend-ai/index-meta.json
+.backend-ai/routes.json
+.backend-ai/dependencies.json
+.backend-ai/session-flow.json
+.backend-ai/transaction-boundaries.json
+
+# Keep validation rules as project config
+!.backend-ai/validation-rules.json
