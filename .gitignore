@@ -43,6 +43,7 @@
 .frontend-ai/icons.json
 .frontend-ai/layouts.json
 .frontend-ai/stories.json
+.frontend-ai/runtime-visual-readiness.json
 
 # Optional runtime screenshots / visual artifacts
 .frontend-ai/screenshots/

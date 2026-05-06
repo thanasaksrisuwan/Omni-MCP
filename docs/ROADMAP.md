@@ -19,7 +19,7 @@ Do not mark a task as `done` without evidence.
 
 ## Current Phase
 
-Backend Day 2: Session Flow + Transaction Boundary
+Complete / Awaiting Commit
 
 ## Phase List
 
@@ -56,111 +56,181 @@ Definition of Done:
 
 ### Phase 2: Backend Day 2 - Session Flow + Transaction Boundary
 
-Status: `not_started`
+Status: `done`
 
 Next required action:
 
-- [ ] Gemini creates `.agent_bus/tasks/day2_task.md`
+- [x] Gemini creates `.agent_bus/tasks/day2_task.md`
 
 Tasks:
 
-- [ ] Generate `.backend-ai/session-flow.json`
-- [ ] Generate `.backend-ai/transaction-boundaries.json`
-- [ ] Implement `backend.get_session_flow`
-- [ ] Detect `session.begin()`
-- [ ] Detect `session.commit()`
-- [ ] Detect `session.flush()`
-- [ ] Detect `session.rollback()`
-- [ ] Detect transaction owner
-- [ ] Implement TX001-TX007 validator
-- [ ] Run validator and tests
-- [ ] Generate worker report
-- [ ] Generate architect review
+- [x] Generate `.backend-ai/session-flow.json`
+- [x] Generate `.backend-ai/transaction-boundaries.json`
+- [x] Implement `backend.get_session_flow`
+- [x] Detect `session.begin()`
+- [x] Detect `session.commit()`
+- [x] Detect `session.flush()`
+- [x] Detect `session.rollback()`
+- [x] Detect transaction owner
+- [x] Implement TX001-TX007 validator
+- [x] Run validator and tests
+- [x] Generate worker report
+- [x] Generate architect review
 
 Start condition:
 
 - Phase 1 review verdict is `approve`.
 
+Definition of Done:
+
+- [x] Expected Day 2 generated files exist
+- [x] Generated JSON is valid
+- [x] Fixture tests passed using plain Python assertions
+- [x] Worker report is complete
+- [x] Architect review verdict is `approve`
+
 ---
 
 ### Phase 3: Backend Reservation Safety
 
-Status: `not_started`
+Status: `done`
 
 Tasks:
 
-- [ ] Implement state machine manifest/tooling
-- [ ] Implement `backend.validate_state_transition`
-- [ ] Implement `backend.validate_idempotency`
-- [ ] Implement `backend.validate_outbox_usage`
-- [ ] Implement `backend.validate_reservation_invariants`
-- [ ] Validate reservation/payment/stock safety rules
-- [ ] Generate worker report
-- [ ] Generate architect review
+- [x] Gemini creates `.agent_bus/tasks/be_rs_001_task.md`
+- [x] Implement state machine manifest/tooling
+- [x] Implement `backend.get_state_machine`
+- [x] Implement `backend.validate_state_transition`
+- [x] Implement `backend.validate_idempotency`
+- [x] Implement `backend.validate_outbox_usage`
+- [x] Implement `backend.validate_reservation_invariants`
+- [x] Validate reservation/payment/stock safety rules
+- [x] Generate `.backend-ai/state-machines.json`
+- [x] Generate `.backend-ai/outbox-events.json`
+- [x] Generate `.backend-ai/invariants.json`
+- [x] Add safe/unsafe fixture tests
+- [x] Run validator and tests
+- [x] Generate worker report
+- [x] Generate architect review
 
 Start condition:
 
 - Phase 2 review verdict is `approve`.
 
+Definition of Done:
+
+- [x] Expected Phase 3 generated files exist
+- [x] Generated JSON is valid
+- [x] Fixture tests passed using plain Python assertions
+- [x] Worker report is complete
+- [x] Architect review verdict is `approve`
+
 ---
 
 ### Phase 4: Frontend MCP Week 1
 
-Status: `not_started`
+Status: `done`
+
+Next required action:
+
+- [x] Gemini creates Frontend Week 1 task spec
 
 Tasks:
 
-- [ ] Generate `.frontend-ai/index-meta.json`
-- [ ] Generate `.frontend-ai/components.json`
-- [ ] Generate `.frontend-ai/props.json`
-- [ ] Generate `.frontend-ai/tokens.json`
-- [ ] Generate `.frontend-ai/assets.json`
-- [ ] Implement `frontend.index_project`
-- [ ] Implement `frontend.search_components`
-- [ ] Implement `frontend.get_prop_signature`
-- [ ] Implement `frontend.validate_ui_code`
-- [ ] Generate worker report
-- [ ] Generate architect review
+- [x] Generate `.frontend-ai/index-meta.json`
+- [x] Generate `.frontend-ai/components.json`
+- [x] Generate `.frontend-ai/props.json`
+- [x] Generate `.frontend-ai/tokens.json`
+- [x] Generate `.frontend-ai/assets.json`
+- [x] Implement `frontend.index_project`
+- [x] Implement `frontend.search_components`
+- [x] Implement `frontend.get_prop_signature`
+- [x] Implement `frontend.validate_ui_code`
+- [x] Add fixture tests for FE001-FE008
+- [x] Run validator and tests
+- [x] Generate worker report
+- [x] Generate architect review
 
 Start condition:
 
 - Backend priority work has an approved task spec or explicit architect approval to switch tracks.
 
+Definition of Done:
+
+- [x] Expected Frontend Week 1 generated files exist
+- [x] Generated JSON is valid
+- [x] Fixture tests passed using plain Python assertions
+- [x] Worker report is complete
+- [x] Architect review verdict is `approve`
+
 ---
 
 ### Phase 5: Frontend Usage + Layout
 
-Status: `not_started`
+Status: `done`
+
+Next required action:
+
+- [x] Gemini creates Frontend Usage + Layout task spec
 
 Tasks:
 
-- [ ] Generate `.frontend-ai/usages.json`
-- [ ] Generate `.frontend-ai/layouts.json`
-- [ ] Implement `frontend.find_component_usages`
-- [ ] Implement `frontend.get_layout_patterns`
-- [ ] Validate existing layout/component patterns
-- [ ] Generate worker report
-- [ ] Generate architect review
+- [x] Generate `.frontend-ai/usages.json`
+- [x] Generate `.frontend-ai/layouts.json`
+- [x] Implement `frontend.find_component_usages`
+- [x] Implement `frontend.get_layout_patterns`
+- [x] Validate existing layout/component patterns
+- [x] Add fixture tests
+- [x] Run validator and tests
+- [x] Generate worker report
+- [x] Generate architect review
 
 Start condition:
 
 - Phase 4 review verdict is `approve`.
 
+Definition of Done:
+
+- [x] Expected Phase 5 generated files exist
+- [x] Generated JSON is valid
+- [x] Fixture tests passed using plain Python assertions
+- [x] Worker report is complete
+- [x] Architect review verdict is `approve`
+
 ---
 
 ### Phase 6: Runtime / Visual Validation
 
-Status: `not_started`
+Status: `done`
+
+Next required action:
+
+- [x] Gemini creates Runtime / Visual task spec
+- [x] Gemini reviews Runtime / Visual worker output
 
 Tasks:
 
-- [ ] Add optional Storybook integration
-- [ ] Add optional Playwright MCP integration
-- [ ] Add accessibility snapshot support
-- [ ] Add visual check support
-- [ ] Generate worker report
-- [ ] Generate architect review
+- [x] Add optional Storybook integration
+- [x] Add optional Playwright MCP integration
+- [x] Add accessibility snapshot support
+- [x] Add visual check support
+- [x] Generate worker report
+- [x] Generate architect review
 
 Start condition:
 
 - Phase 5 review verdict is `approve`.
+
+Definition of Done:
+
+- [x] Expected Phase 6 generated files exist
+- [x] Generated JSON is valid
+- [x] Fixture tests passed using plain Python assertions
+- [x] Worker report is complete
+- [x] Architect review verdict is `approve`
+
+---
+
+## Next Recommended Action
+
+- Commit approved changes when ready.
