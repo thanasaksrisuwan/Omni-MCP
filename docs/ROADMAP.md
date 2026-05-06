@@ -19,7 +19,7 @@ Do not mark a task as `done` without evidence.
 
 ## Current Phase
 
-Complete / Awaiting Commit
+Complete / Committed
 
 ## Phase List
 
@@ -233,4 +233,5 @@ Definition of Done:
 
 ## Next Recommended Action
 
-- Commit approved changes when ready.
+- No next implementation task is currently defined in the roadmap.
+- Last implementation commit: `6c7ec01 เพิ่มระบบสแกนความปลอดภัยตาม SRS`
