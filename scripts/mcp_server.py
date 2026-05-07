@@ -12,7 +12,21 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from scripts import backend_reservation_safety, backend_scanner, backend_session_scanner, frontend_scanner, omni_bridge, omni_scribe
+from scripts import (
+    backend_reservation_safety,
+    backend_scanner,
+    backend_session_scanner,
+    frontend_scanner,
+    omni_bridge,
+    omni_scribe,
+    omni_vision,
+    omni_vault,
+    omni_oracle,
+    omni_medic,
+    omni_ghost,
+    omni_guardian,
+    omni_aura,
+)
 
 
 ALLOWED_OUTPUT_DIRS = {".frontend-ai", ".backend-ai", ".agent_bus"}
@@ -493,6 +507,100 @@ def omni_scribe_plan_write(
     return safe_call(run)
 
 
+def omni_vision_trace_route(
+    target: str,
+    project_root: str = ".",
+    backend_manifest_dir: str = ".backend-ai",
+    trace_file: str = ".agent_bus/traces/omni-vision.json",
+) -> dict[str, Any]:
+    def run() -> dict[str, Any]:
+        return omni_vision.trace_route(
+            target,
+            project_root=resolve_project_root(project_root),
+            backend_manifest_dir=backend_manifest_dir,
+            trace_file=trace_file,
+        )
+
+    return safe_call(run)
+
+
+def omni_vault_sandbox_run(
+    code_snippet: str,
+    seed_data: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    def run() -> dict[str, Any]:
+        return omni_vault.sandbox_run(code_snippet, seed_data=seed_data)
+
+    return safe_call(run)
+
+
+def omni_oracle_record(
+    type: str,
+    content: str,
+    context: str | list[str] | None = None,
+    tags: list[str] | None = None,
+    confidence: float = 1.0,
+) -> dict[str, Any]:
+    def run() -> dict[str, Any]:
+        return omni_oracle.record_knowledge(
+            type, content, context=context, tags=tags, confidence=confidence
+        )
+
+    return safe_call(run)
+
+
+def omni_oracle_recall(
+    query: str | None = None,
+    tags: list[str] | None = None,
+    type: str | None = None,
+) -> dict[str, Any]:
+    def run() -> dict[str, Any]:
+        return omni_oracle.recall_knowledge(query=query, tags=tags, type=type)
+
+    return safe_call(run)
+
+
+def omni_medic_suggest_fix(
+    issues: list[dict[str, Any]],
+) -> dict[str, Any]:
+    def run() -> dict[str, Any]:
+        return {"status": "ok", "suggestions": omni_medic.diagnose_and_suggest(issues)}
+
+    return safe_call(run)
+
+
+def omni_ghost_prepare_scenario(
+    scenario: str,
+) -> dict[str, Any]:
+    def run() -> dict[str, Any]:
+        return omni_ghost.prepare_scenario(scenario)
+
+    return safe_call(run)
+
+
+def omni_guardian_stress_test(
+    code_snippet: str,
+    base_scenario: str | None = None,
+    custom_seed: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    def run() -> dict[str, Any]:
+        return omni_guardian.stress_test(
+            code_snippet, base_scenario=base_scenario, custom_seed=custom_seed
+        )
+
+    return safe_call(run)
+
+
+def omni_aura_analyze_surface(
+    component_id: str,
+) -> dict[str, Any]:
+    def run() -> dict[str, Any]:
+        # In a real run, we would load actual manifests here
+        return omni_aura.analyze_surface(component_id)
+
+    return safe_call(run)
+
+
 TOOL_SPECS: list[tuple[str, Callable[..., dict[str, Any]], str]] = [
     ("backend.get_session_flow", backend_get_session_flow, "Return session flow details for a backend entrypoint."),
     ("backend.validate_transaction_usage", backend_validate_transaction_usage, "Validate backend transaction usage."),
@@ -517,6 +625,14 @@ TOOL_SPECS: list[tuple[str, Callable[..., dict[str, Any]], str]] = [
     ("frontend.validate_ui_code", frontend_validate_ui_code, "Validate UI code against manifests."),
     ("omni.bridge_pack_context", omni_bridge_pack_context, "Pack read-only context from generated manifests."),
     ("omni.scribe_plan_write", omni_scribe_plan_write, "Plan a validation-locked write without touching target files."),
+    ("omni.vision_trace_route", omni_vision_trace_route, "Link runtime trace fixtures to backend manifests."),
+    ("omni.vault_sandbox_run", omni_vault_sandbox_run, "Run business logic in a transactional sandbox with invariant checks."),
+    ("omni.oracle_record", omni_oracle_record, "Record a new decision or architectural fact."),
+    ("omni.oracle_recall", omni_oracle_recall, "Recall recorded architectural knowledge."),
+    ("omni.medic_suggest_fix", omni_medic_suggest_fix, "Suggest code transformations to fix validation issues."),
+    ("omni.ghost_prepare_scenario", omni_ghost_prepare_scenario, "Prepare synthetic seed data for transactional sandbox scenarios."),
+    ("omni.guardian_stress_test", omni_guardian_stress_test, "Stress test code against adversarial edge-case data variations."),
+    ("omni.aura_analyze_surface", omni_aura_analyze_surface, "Analyze UI component for accessibility, UX patterns, and visual consistency."),
 ]
 
 EXPECTED_TOOL_NAMES = [name for name, _handler, _description in TOOL_SPECS]
@@ -524,10 +640,11 @@ EXPECTED_TOOL_NAMES = [name for name, _handler, _description in TOOL_SPECS]
 
 def create_server() -> FastMCP:
     server = FastMCP(
-        "omni-mcp",
+        "Omni-MCP: The Core Protocol",
         instructions=(
-            "Safety-first frontend/backend analysis tools. Tools are read-only against source and write generated "
-            "manifests only under .frontend-ai, .backend-ai, or .agent_bus."
+            "Omni-Series safety-first AI engineering protocol. "
+            "Use omni.bridge_pack_context for discovery, omni.vision_trace_route for runtime context, "
+            "omni.vault_sandbox_run for safe execution testing, and omni.scribe_plan_write for secure code proposal."
         ),
     )
     for name, handler, description in TOOL_SPECS:
@@ -536,7 +653,7 @@ def create_server() -> FastMCP:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run the Omni-MCP server.")
+    parser = argparse.ArgumentParser(description="Omni-MCP: The Core Protocol - Safety-First AI Engineering System")
     parser.add_argument("--transport", choices=["stdio", "sse", "streamable-http"], default="stdio")
     parser.add_argument("--list-tools", action="store_true", help="Print registered tool names and exit.")
     return parser.parse_args()

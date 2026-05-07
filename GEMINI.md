@@ -1,4 +1,4 @@
-﻿# AGENTS.md
+# AGENTS.md
 
 # Role: Senior software engineer.
 
@@ -115,22 +115,6 @@ Allowed generated/config files include:
 ```
 
 Do not perform destructive operations.
-
----
-
-## The Omni-Series Protocol (Execution & Safety)
-
-### Omni-Bridge (Context Orchestration)
-Use `omni.bridge_pack_context` to gather all related backend and frontend manifests based on their semantic relationships. This ensures you have the correct context before suggesting any changes.
-
-### Omni-Scribe (Secure Writing)
-Use `omni.scribe_plan_write` to propose file changes. The scribe will validate your proposal against project-wide safety rules (e.g., transaction boundaries, design tokens) without touching the actual source files until approved.
-
-### Omni-Vision (Semantic Tracing)
-Use `omni.vision_trace_route` to link runtime trace data with static manifests. This provides a clear picture of how a request flows through the handlers and models compared to the architectural requirements.
-
-### Omni-Vault (Transactional Sandbox)
-Use `omni.vault_sandbox_run` to execute Python business logic snippets in a safe, transactional in-memory environment. This tool automatically checks for invariant violations (INV001-007) before returning the result.
 
 ---
 

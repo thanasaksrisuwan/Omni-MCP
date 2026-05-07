@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from scripts import backend_reservation_safety, backend_session_scanner, frontend_scanner
+from scripts import backend_reservation_safety, backend_session_scanner, frontend_scanner, omni_medic
 
 
 FRONTEND_SUFFIXES = {".js", ".jsx", ".ts", ".tsx"}
@@ -303,6 +303,7 @@ def plan_write(
         issues = flatten_backend_issues(validation)
 
     if validation_failed(validation):
+        suggestions = omni_medic.diagnose_and_suggest(issues)
         return {
             "status": "blocked",
             "risk": "high" if validation.get("status") == "failed" else "unknown",
@@ -311,6 +312,7 @@ def plan_write(
             "temp_file": temp_file.relative_to(root).as_posix(),
             "validation": validation,
             "issues": issues,
+            "suggestions": suggestions,
             "confidence": validation.get("confidence", 0.0),
             "provenance": "omni-scribe-write-plan",
         }

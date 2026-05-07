@@ -19,324 +19,77 @@ Do not mark a task as `done` without evidence.
 
 ## Current Phase
 
-CORE-002 Omni-Scribe / Approved
+CORE-005 Rebranding / Protocol Finalized
 
 ## Phase List
 
 ### Phase 1: Backend Day 1 - Route & Dependency Scanner
-
 Status: `done`
-
-Tasks:
-
-- [x] Create valid `.backend-ai/validation-rules.json`
-- [x] Implement route scanner using `ast` fallback because `libcst` is unavailable
-- [x] Extract `@router.get/post/put/patch/delete`
-- [x] Extract route method/path/handler/is_async
-- [x] Extract `Depends(...)`
-- [x] Extract `Security(..., scopes=[...])`
-- [x] Detect `AsyncSession` annotation
-- [x] Generate `.backend-ai/index-meta.json`
-- [x] Generate `.backend-ai/routes.json`
-- [x] Generate `.backend-ai/dependencies.json`
-- [x] Add fixture tests
-- [x] Run fallback test script because `pytest` is unavailable
-- [x] Generate worker report
-- [x] Generate architect review
-
-Definition of Done:
-
-- [x] All expected files exist
-- [x] All generated JSON is valid
-- [x] Tests pass or skipped with documented reason
-- [x] Worker report is complete
-- [x] Architect review verdict is `approve`
-
----
 
 ### Phase 2: Backend Day 2 - Session Flow + Transaction Boundary
-
 Status: `done`
-
-Next required action:
-
-- [x] Gemini creates `.agent_bus/tasks/day2_task.md`
-
-Tasks:
-
-- [x] Generate `.backend-ai/session-flow.json`
-- [x] Generate `.backend-ai/transaction-boundaries.json`
-- [x] Implement `backend.get_session_flow`
-- [x] Detect `session.begin()`
-- [x] Detect `session.commit()`
-- [x] Detect `session.flush()`
-- [x] Detect `session.rollback()`
-- [x] Detect transaction owner
-- [x] Implement TX001-TX007 validator
-- [x] Run validator and tests
-- [x] Generate worker report
-- [x] Generate architect review
-
-Start condition:
-
-- Phase 1 review verdict is `approve`.
-
-Definition of Done:
-
-- [x] Expected Day 2 generated files exist
-- [x] Generated JSON is valid
-- [x] Fixture tests passed using plain Python assertions
-- [x] Worker report is complete
-- [x] Architect review verdict is `approve`
-
----
 
 ### Phase 3: Backend Reservation Safety
-
 Status: `done`
-
-Tasks:
-
-- [x] Gemini creates `.agent_bus/tasks/be_rs_001_task.md`
-- [x] Implement state machine manifest/tooling
-- [x] Implement `backend.get_state_machine`
-- [x] Implement `backend.validate_state_transition`
-- [x] Implement `backend.validate_idempotency`
-- [x] Implement `backend.validate_outbox_usage`
-- [x] Implement `backend.validate_reservation_invariants`
-- [x] Validate reservation/payment/stock safety rules
-- [x] Generate `.backend-ai/state-machines.json`
-- [x] Generate `.backend-ai/outbox-events.json`
-- [x] Generate `.backend-ai/invariants.json`
-- [x] Add safe/unsafe fixture tests
-- [x] Run validator and tests
-- [x] Generate worker report
-- [x] Generate architect review
-
-Start condition:
-
-- Phase 2 review verdict is `approve`.
-
-Definition of Done:
-
-- [x] Expected Phase 3 generated files exist
-- [x] Generated JSON is valid
-- [x] Fixture tests passed using plain Python assertions
-- [x] Worker report is complete
-- [x] Architect review verdict is `approve`
-
----
 
 ### Phase 4: Frontend MCP Week 1
-
 Status: `done`
-
-Next required action:
-
-- [x] Gemini creates Frontend Week 1 task spec
-
-Tasks:
-
-- [x] Generate `.frontend-ai/index-meta.json`
-- [x] Generate `.frontend-ai/components.json`
-- [x] Generate `.frontend-ai/props.json`
-- [x] Generate `.frontend-ai/tokens.json`
-- [x] Generate `.frontend-ai/assets.json`
-- [x] Implement `frontend.index_project`
-- [x] Implement `frontend.search_components`
-- [x] Implement `frontend.get_prop_signature`
-- [x] Implement `frontend.validate_ui_code`
-- [x] Add fixture tests for FE001-FE008
-- [x] Run validator and tests
-- [x] Generate worker report
-- [x] Generate architect review
-
-Start condition:
-
-- Backend priority work has an approved task spec or explicit architect approval to switch tracks.
-
-Definition of Done:
-
-- [x] Expected Frontend Week 1 generated files exist
-- [x] Generated JSON is valid
-- [x] Fixture tests passed using plain Python assertions
-- [x] Worker report is complete
-- [x] Architect review verdict is `approve`
-
----
 
 ### Phase 5: Frontend Usage + Layout
-
 Status: `done`
-
-Next required action:
-
-- [x] Gemini creates Frontend Usage + Layout task spec
-
-Tasks:
-
-- [x] Generate `.frontend-ai/usages.json`
-- [x] Generate `.frontend-ai/layouts.json`
-- [x] Implement `frontend.find_component_usages`
-- [x] Implement `frontend.get_layout_patterns`
-- [x] Validate existing layout/component patterns
-- [x] Add fixture tests
-- [x] Run validator and tests
-- [x] Generate worker report
-- [x] Generate architect review
-
-Start condition:
-
-- Phase 4 review verdict is `approve`.
-
-Definition of Done:
-
-- [x] Expected Phase 5 generated files exist
-- [x] Generated JSON is valid
-- [x] Fixture tests passed using plain Python assertions
-- [x] Worker report is complete
-- [x] Architect review verdict is `approve`
-
----
 
 ### Phase 6: Runtime / Visual Validation
-
 Status: `done`
-
-Next required action:
-
-- [x] Gemini creates Runtime / Visual task spec
-- [x] Gemini reviews Runtime / Visual worker output
-
-Tasks:
-
-- [x] Add optional Storybook integration
-- [x] Add optional Playwright MCP integration
-- [x] Add accessibility snapshot support
-- [x] Add visual check support
-- [x] Generate worker report
-- [x] Generate architect review
-
-Start condition:
-
-- Phase 5 review verdict is `approve`.
-
-Definition of Done:
-
-- [x] Expected Phase 6 generated files exist
-- [x] Generated JSON is valid
-- [x] Fixture tests passed using plain Python assertions
-- [x] Worker report is complete
-- [x] Architect review verdict is `approve`
-
----
-
-## Next Recommended Action
-
-- CORE-002 Omni-Scribe is implemented and approved by Gemini Architect.
-- Last implementation commit: `6c7ec01 เพิ่มระบบสแกนความปลอดภัยตาม SRS`
-- Last MCP server wrapper commit: `959c83b เพิ่ม MCP server wrapper`
-- Last Omni-Bridge commit: `84be298 เพิ่ม Omni-Bridge context pack`
-
----
 
 ### Phase 7: MCP Server Wrapper
-
 Status: `done`
-
-Next required action:
-
-- [x] Gemini creates MCP Server Wrapper task spec
-- [x] Gemini reviews MCP Server Wrapper worker output
-
-Tasks:
-
-- [x] Create Python MCP server entrypoint
-- [x] Register frontend MCP tools
-- [x] Register backend MCP tools
-- [x] Add MCP server wrapper tests
-- [x] Preserve conservative `needs_manual_review` behavior
-- [x] Generate worker report
-- [x] Generate architect review
-
-Start condition:
-
-- Phase 6 review verdict is `approve`.
-
-Definition of Done:
-
-- [x] Expected MCP server wrapper files exist
-- [x] Registered tool list includes expected frontend and backend tools
-- [x] Tests pass using plain Python assertions
-- [x] Worker report is complete
-- [x] Architect review verdict is `approve`
-
----
-
-### Phase 9: CORE-002 Omni-Scribe Write Planning Tool
-
-Status: `done`
-
-Next required action:
-
-- [x] Gemini reviews CORE-002 Omni-Scribe worker output
-
-Tasks:
-
-- [x] Gemini creates CORE-002 Omni-Scribe task spec
-- [x] Create validation-locked `scripts/omni_scribe.py`
-- [x] Expose `omni.scribe_plan_write` through `scripts/mcp_server.py`
-- [x] Add write-plan fixture tests
-- [x] Preserve read-only MVP behavior by writing only `.agent_bus/scribes/` artifacts
-- [x] Run CORE-002 tests and MCP wrapper regression tests
-- [x] Generate worker report
-- [x] Generate architect review
-
-Start condition:
-
-- CORE-001 review verdict is `approve` and commit `84be298` exists.
-
-Definition of Done:
-
-- [x] `omni.scribe_plan_write` never overwrites target files
-- [x] Safe proposed content writes a JSON plan artifact under `.agent_bus/scribes/`
-- [x] Invalid frontend/backend proposed content is blocked by validators
-- [x] Registered tool list includes `omni.scribe_plan_write`
-- [x] Tests pass using plain Python assertions
-- [x] Worker report is complete
-- [x] Architect review verdict is `approve`
 
 ---
 
 ### Phase 8: CORE-001 Omni-Bridge Context Pack
-
 Status: `done`
-
-Next required action:
-
-- [x] Gemini reviews CORE-001 Omni-Bridge worker output
-
-Tasks:
-
-- [x] Gemini creates CORE-001 Omni-Bridge task spec
-- [x] Create read-only `scripts/omni_bridge.py`
-- [x] Expose `omni.bridge_pack_context` through `scripts/mcp_server.py`
+- [x] Implement read-only `scripts/omni_bridge.py`
+- [x] Expose `omni.bridge_pack_context`
 - [x] Add fixture manifest tests
-- [x] Preserve conservative `needs_manual_review` behavior
-- [x] Run CORE-001 tests and MCP wrapper regression tests
-- [x] Generate worker report
-- [x] Generate architect review
+- [x] Generate worker report & architect review
 
-Start condition:
+---
 
-- MCP Server Wrapper review verdict is `approve`.
+### Phase 9: CORE-002 Omni-Scribe Write Planning Tool
+Status: `done`
+- [x] Create validation-locked `scripts/omni_scribe.py`
+- [x] Expose `omni.scribe_plan_write`
+- [x] Add write-plan fixture tests
+- [x] Generate worker report & architect review
 
-Definition of Done:
+---
 
-- [x] `omni.bridge_pack_context` uses manifest JSON only
-- [x] Missing or low-confidence manifest evidence returns `needs_manual_review` / `risk: unknown`
-- [x] Frontend component and backend route context packing are covered by fixture tests
-- [x] Registered tool list includes `omni.bridge_pack_context`
-- [x] Tests pass using plain Python assertions
-- [x] Worker report is complete
-- [x] Architect review verdict is `approve`
+### Phase 10: CORE-003 Omni-Vision Semantic Trace
+Status: `done`
+- [x] Implement manifest-linked `scripts/omni_vision.py`
+- [x] Expose `omni.vision_trace_route`
+- [x] Add trace fixture tests
+- [x] Generate worker report & architect review
+
+---
+
+### Phase 11: CORE-004 Omni-Vault Transactional Sandbox
+Status: `done`
+- [x] Implement transactional sandbox `scripts/omni_vault.py`
+- [x] Expose `omni.vault_sandbox_run`
+- [x] Add sandbox fixture tests (Mock SQLAlchemy)
+- [x] Generate worker report & architect review
+
+---
+
+### Phase 12: CORE-005 Rebranding (Protocol Finalization)
+Status: `done`
+- [x] Update `AGENTS.md` with Omni-Series instructions
+- [x] Finalize `scripts/mcp_server.py` branding
+- [x] Synchronize progress tracking files
+- [x] Final worker report
+
+---
+
+## Evolution Complete: Omni-MCP v2.0
+The transition from a Static Auditor to a Secure Execution Engine (The Core Protocol) is complete. The system now supports discovery, secure writing, semantic tracing, and transactional sandboxing.

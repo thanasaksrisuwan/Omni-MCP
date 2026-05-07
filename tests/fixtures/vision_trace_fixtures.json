@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0.0",
+  "status": "ok",
+  "risk": "low",
+  "confidence": 0.92,
+  "provenance": "fixture-runtime-introspection",
+  "traces": [
+    {
+      "trace_id": "trace-reservation-001",
+      "method": "POST",
+      "path": "/reservations",
+      "handler": "create_reservation",
+      "status_code": 201,
+      "duration_ms": 42.5,
+      "confidence": 0.91,
+      "events": [
+        {
+          "event": "request.start",
+          "method": "POST",
+          "path": "/reservations",
+          "confidence": 0.95
+        },
+        {
+          "event": "session.begin",
+          "session_type": "AsyncSession",
+          "transaction_pattern": "async with session.begin()",
+          "inside_transaction": true,
+          "confidence": 0.95
+        },
+        {
+          "event": "db.add",
+          "model": "Reservation",
+          "inside_transaction": true,
+          "confidence": 0.93
+        },
+        {
+          "event": "db.add",
+          "model": "StockLock",
+          "inside_transaction": true,
+          "confidence": 0.93
+        },
+        {
+          "event": "request.end",
+          "status_code": 201,
+          "confidence": 0.95
+        }
+      ]
+    },
+    {
+      "trace_id": "trace-unlinked-001",
+      "method": "GET",
+      "path": "/unlinked",
+      "handler": "unlinked_handler",
+      "status_code": 200,
+      "duration_ms": 5.0,
+      "confidence": 0.9,
+      "events": [
+        {
+          "event": "request.start",
+          "method": "GET",
+          "path": "/unlinked",
+          "confidence": 0.9
+        }
+      ]
+    }
+  ]
+}
