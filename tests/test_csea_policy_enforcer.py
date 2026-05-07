@@ -117,6 +117,18 @@ def test_cli_run_powershell_discovery() -> None:
     assert "Controlled Semi-Autonomous" in payload["stdout"]
 
 
+def test_agent_orchestration_is_allowed() -> None:
+    result = csea_policy_enforcer.validate_command("gemini --version", PROJECT_ROOT)
+    assert result["status"] == "ok"
+    assert result["allowed"] is True
+    assert result["allowed_family"] == "agent-orchestration"
+
+    result = csea_policy_enforcer.validate_command("codex status", PROJECT_ROOT)
+    assert result["status"] == "ok"
+    assert result["allowed"] is True
+    assert result["allowed_family"] == "agent-orchestration"
+
+
 def main() -> int:
     test_git_status_is_allowed()
     test_blacklisted_rm_is_blocked()
@@ -128,6 +140,7 @@ def main() -> int:
     test_cli_run_git_status()
     test_powershell_discovery_is_allowed()
     test_cli_run_powershell_discovery()
+    test_agent_orchestration_is_allowed()
     return 0
 
 

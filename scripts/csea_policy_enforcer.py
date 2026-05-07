@@ -17,6 +17,7 @@ SHELL_OPERATORS = {"|", ">", ">>", "<", ";", "&&", "||"}
 BLACKLIST_PATTERNS = ("DROP", "TRUNCATE", "migrate:fresh")
 POWERSHELL_COMMANDS = {"Get-Location", "Get-ChildItem", "Get-Content", "Select-String", "Get-Command"}
 POSIX_COMMANDS = {"pwd", "ls", "cat", "grep"}
+AGENT_COMMANDS = {"gemini", "codex"}
 GIT_STATUS_FLAGS = {"--short", "-s", "--porcelain", "--branch"}
 
 
@@ -201,6 +202,8 @@ def validate_command(command: str, project_root: str | Path | None = None) -> di
         allowed_family = "powershell-discovery"
     elif executable in POSIX_COMMANDS:
         allowed_family = "posix-discovery"
+    elif executable in AGENT_COMMANDS:
+        allowed_family = "agent-orchestration"
     elif executable == "command":
         if len(tokens) >= 3 and tokens[1] == "-v":
             allowed_family = "posix-discovery"
@@ -263,11 +266,33 @@ def run_command(command: str, project_root: str | Path | None = None) -> dict[st
 
     argv = validation["argv"]
     if validation.get("allowed_family") == "powershell-discovery":
+        # Approved host wrapper for PowerShell discovery cmdlets
+        wrapped_argv = ["powershell", "-NoProfile", "-NonInteractive", "-Command", command]
+        try:
+            completed = subprocess.run(
+                wrapped_argv,
+                cwd=git_root,
+                capture_output=True,
+                text=True,
+                shell=False,
+                timeout=30,
+                check=False,
+            )
+        except OSError as exc:
+            return {
+                **validation,
+                "status": "failed",
+                "risk": "unknown",
+                "reason": f"PowerShell host wrapper failed: {exc}",
+            }
+        
         return {
             **validation,
-            "status": "needs_manual_review",
-            "risk": "unknown",
-            "reason": "PowerShell cmdlet execution requires an approved host wrapper; use --check for policy validation.",
+            "returncode": completed.returncode,
+            "stdout": completed.stdout,
+            "stderr": completed.stderr,
+            "status": "ok" if completed.returncode == 0 else "failed",
+            "risk": "low" if completed.returncode == 0 else "unknown",
         }
 
     try:
