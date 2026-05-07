@@ -19,7 +19,7 @@ Do not mark a task as `done` without evidence.
 
 ## Current Phase
 
-MCP Server Wrapper / Committed
+CORE-001 Omni-Bridge / Approved
 
 ## Phase List
 
@@ -266,6 +266,41 @@ Definition of Done:
 
 - [x] Expected MCP server wrapper files exist
 - [x] Registered tool list includes expected frontend and backend tools
+- [x] Tests pass using plain Python assertions
+- [x] Worker report is complete
+- [x] Architect review verdict is `approve`
+
+---
+
+### Phase 8: CORE-001 Omni-Bridge Context Pack
+
+Status: `done`
+
+Next required action:
+
+- [x] Gemini reviews CORE-001 Omni-Bridge worker output
+
+Tasks:
+
+- [x] Gemini creates CORE-001 Omni-Bridge task spec
+- [x] Create read-only `scripts/omni_bridge.py`
+- [x] Expose `omni.bridge_pack_context` through `scripts/mcp_server.py`
+- [x] Add fixture manifest tests
+- [x] Preserve conservative `needs_manual_review` behavior
+- [x] Run CORE-001 tests and MCP wrapper regression tests
+- [x] Generate worker report
+- [x] Generate architect review
+
+Start condition:
+
+- MCP Server Wrapper review verdict is `approve`.
+
+Definition of Done:
+
+- [x] `omni.bridge_pack_context` uses manifest JSON only
+- [x] Missing or low-confidence manifest evidence returns `needs_manual_review` / `risk: unknown`
+- [x] Frontend component and backend route context packing are covered by fixture tests
+- [x] Registered tool list includes `omni.bridge_pack_context`
 - [x] Tests pass using plain Python assertions
 - [x] Worker report is complete
 - [x] Architect review verdict is `approve`

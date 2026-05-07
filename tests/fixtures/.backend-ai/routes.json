@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0.0",
+  "status": "ok",
+  "risk": "low",
+  "confidence": 0.95,
+  "source_hash": "fixture-backend",
+  "routes": [
+    {
+      "method": "POST",
+      "path": "/reservations",
+      "handler": "create_reservation",
+      "is_async": true,
+      "session_type": "AsyncSession",
+      "source_file": "tests/fixtures/sample_routes.py",
+      "line": 21,
+      "confidence": 0.95
+    }
+  ]
+}

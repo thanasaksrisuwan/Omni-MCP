@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0.0",
+  "status": "needs_manual_review",
+  "risk": "unknown",
+  "confidence": 0.5,
+  "source_hash": "fixture-low",
+  "scanner": "fixture",
+  "components": [
+    {
+      "component_id": "ui.button",
+      "name": "Button",
+      "import_path": "@/components/ui/Button",
+      "source_file": "tests/fixtures/frontend/components/ui/Button.tsx",
+      "line": 20,
+      "status": "stable",
+      "confidence": 0.5,
+      "provenance": "fixture"
+    }
+  ]
+}

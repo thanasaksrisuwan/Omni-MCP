@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0.0",
+  "status": "ok",
+  "risk": "low",
+  "confidence": 0.9,
+  "source_hash": "fixture-frontend",
+  "scanner": "fixture",
+  "patterns": [
+    {
+      "pattern_id": "page.list-management",
+      "tree": ["PageContainer", "PageHeader", "Toolbar", "Card", "DataTable"],
+      "examples": ["tests/fixtures/frontend/pages/InventoryPage.tsx"]
+    }
+  ]
+}

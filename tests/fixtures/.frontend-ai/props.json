@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0.0",
+  "status": "ok",
+  "risk": "low",
+  "confidence": 0.9,
+  "source_hash": "fixture-frontend",
+  "scanner": "fixture",
+  "props": {
+    "ui.button": {
+      "component_id": "ui.button",
+      "confidence": 0.9,
+      "provenance": "static-analysis",
+      "props": {
+        "label": {
+          "name": "label",
+          "type": "string",
+          "required": true,
+          "allowed_values": null,
+          "confidence": 0.88,
+          "provenance": "static-analysis"
+        },
+        "variant": {
+          "name": "variant",
+          "type": "\"primary\" | \"secondary\" | \"ghost\" | \"danger\"",
+          "required": false,
+          "allowed_values": ["primary", "secondary", "ghost", "danger"],
+          "confidence": 0.88,
+          "provenance": "static-analysis"
+        }
+      }
+    }
+  }
+}

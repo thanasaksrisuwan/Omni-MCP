@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0.0",
+  "status": "ok",
+  "risk": "low",
+  "confidence": 0.9,
+  "source_hash": "fixture-backend",
+  "scanner": "fixture",
+  "transaction_boundaries": [
+    {
+      "function": "create_reservation",
+      "pattern": "async with session.begin()",
+      "session_type": "AsyncSession",
+      "source_file": "tests/fixtures/sample_routes.py",
+      "line": 26,
+      "confidence": 0.95,
+      "provenance": "static-analysis"
+    }
+  ],
+  "session_operations": [
+    {
+      "operation": "begin",
+      "function": "create_reservation",
+      "source_file": "tests/fixtures/sample_routes.py",
+      "line": 26,
+      "inside_transaction": true,
+      "target_model": null,
+      "confidence": 0.95,
+      "provenance": "static-analysis"
+    },
+    {
+      "operation": "add",
+      "function": "create_reservation",
+      "source_file": "tests/fixtures/sample_routes.py",
+      "line": 27,
+      "inside_transaction": true,
+      "target_model": "Reservation",
+      "confidence": 0.95,
+      "provenance": "static-analysis"
+    },
+    {
+      "operation": "add",
+      "function": "create_reservation",
+      "source_file": "tests/fixtures/sample_routes.py",
+      "line": 28,
+      "inside_transaction": true,
+      "target_model": "StockLock",
+      "confidence": 0.95,
+      "provenance": "static-analysis"
+    }
+  ],
+  "validation": {
+    "status": "ok",
+    "errors": [],
+    "warnings": [],
+    "rules_checked": ["TX001", "TX002", "TX003", "TX004", "TX005", "TX006", "TX007"]
+  }
+}

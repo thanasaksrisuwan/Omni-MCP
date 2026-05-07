@@ -12,7 +12,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from scripts import backend_reservation_safety, backend_scanner, backend_session_scanner, frontend_scanner
+from scripts import backend_reservation_safety, backend_scanner, backend_session_scanner, frontend_scanner, omni_bridge
 
 
 ALLOWED_OUTPUT_DIRS = {".frontend-ai", ".backend-ai", ".agent_bus"}
@@ -453,6 +453,25 @@ def frontend_validate_ui_code(
     return safe_call(run)
 
 
+def omni_bridge_pack_context(
+    target: str,
+    target_type: str = "auto",
+    project_root: str = ".",
+    frontend_manifest_dir: str = ".frontend-ai",
+    backend_manifest_dir: str = ".backend-ai",
+) -> dict[str, Any]:
+    def run() -> dict[str, Any]:
+        return omni_bridge.bridge_pack_context(
+            target,
+            target_type=target_type,
+            project_root=resolve_project_root(project_root),
+            frontend_manifest_dir=frontend_manifest_dir,
+            backend_manifest_dir=backend_manifest_dir,
+        )
+
+    return safe_call(run)
+
+
 TOOL_SPECS: list[tuple[str, Callable[..., dict[str, Any]], str]] = [
     ("backend.get_session_flow", backend_get_session_flow, "Return session flow details for a backend entrypoint."),
     ("backend.validate_transaction_usage", backend_validate_transaction_usage, "Validate backend transaction usage."),
@@ -475,6 +494,7 @@ TOOL_SPECS: list[tuple[str, Callable[..., dict[str, Any]], str]] = [
     ("frontend.list_assets", frontend_list_assets, "Return discovered frontend assets and icons."),
     ("frontend.get_layout_patterns", frontend_get_layout_patterns, "Return frontend layout patterns."),
     ("frontend.validate_ui_code", frontend_validate_ui_code, "Validate UI code against manifests."),
+    ("omni.bridge_pack_context", omni_bridge_pack_context, "Pack read-only context from generated manifests."),
 ]
 
 EXPECTED_TOOL_NAMES = [name for name, _handler, _description in TOOL_SPECS]

@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0.0",
+  "status": "ok",
+  "risk": "low",
+  "confidence": 0.9,
+  "source_hash": "fixture-frontend",
+  "scanner": "fixture",
+  "usages": [
+    {
+      "component_id": "ui.button",
+      "component_name": "Button",
+      "file": "tests/fixtures/frontend/pages/InventoryPage.tsx",
+      "line": 11,
+      "import_path": "@/components/ui/Button",
+      "summary": "Button used for destructive action",
+      "props_used": {
+        "label": "Delete selected",
+        "variant": "danger"
+      },
+      "confidence": 0.88,
+      "provenance": "static-analysis"
+    }
+  ]
+}

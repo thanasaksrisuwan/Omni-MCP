@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0.0",
+  "status": "ok",
+  "risk": "low",
+  "confidence": 0.95,
+  "source_hash": "fixture-backend",
+  "dependencies": [
+    {
+      "kind": "Depends",
+      "callable": "get_session",
+      "param": "session",
+      "annotation": "AsyncSession",
+      "route_method": "POST",
+      "route_path": "/reservations",
+      "handler": "create_reservation",
+      "source_file": "tests/fixtures/sample_routes.py",
+      "line": 23,
+      "confidence": 0.95
+    },
+    {
+      "kind": "Security",
+      "callable": "get_current_user",
+      "param": "user",
+      "scopes": ["reservation:create"],
+      "route_method": "POST",
+      "route_path": "/reservations",
+      "handler": "create_reservation",
+      "source_file": "tests/fixtures/sample_routes.py",
+      "line": 24,
+      "confidence": 0.95
+    }
+  ]
+}

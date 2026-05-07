@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0.0",
+  "status": "ok",
+  "risk": "low",
+  "confidence": 0.9,
+  "source_hash": "fixture-frontend",
+  "scanner": "fixture",
+  "assets": [
+    {
+      "name": "IconTrash",
+      "kind": "icon",
+      "import_path": "@/components/icons",
+      "aliases": ["delete", "trash"]
+    }
+  ]
+}

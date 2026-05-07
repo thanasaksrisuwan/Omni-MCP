@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0.0",
+  "status": "ok",
+  "risk": "low",
+  "confidence": 0.9,
+  "source_hash": "fixture-frontend",
+  "scanner": "fixture",
+  "components": [
+    {
+      "component_id": "ui.button",
+      "name": "Button",
+      "import_path": "@/components/ui/Button",
+      "source_file": "tests/fixtures/frontend/components/ui/Button.tsx",
+      "line": 20,
+      "intent": "primary action, destructive action, form submit",
+      "avoid": "navigation link",
+      "status": "stable",
+      "confidence": 0.93,
+      "provenance": "manual-jsdoc"
+    }
+  ]
+}
