@@ -19,7 +19,7 @@ Do not mark a task as `done` without evidence.
 
 ## Current Phase
 
-Complete / Committed
+MCP Server Wrapper / Approved
 
 ## Phase List
 
@@ -233,5 +233,38 @@ Definition of Done:
 
 ## Next Recommended Action
 
-- No next implementation task is currently defined in the roadmap.
+- Commit Phase 7 MCP Server Wrapper.
 - Last implementation commit: `6c7ec01 เพิ่มระบบสแกนความปลอดภัยตาม SRS`
+
+---
+
+### Phase 7: MCP Server Wrapper
+
+Status: `done`
+
+Next required action:
+
+- [x] Gemini creates MCP Server Wrapper task spec
+- [x] Gemini reviews MCP Server Wrapper worker output
+
+Tasks:
+
+- [x] Create Python MCP server entrypoint
+- [x] Register frontend MCP tools
+- [x] Register backend MCP tools
+- [x] Add MCP server wrapper tests
+- [x] Preserve conservative `needs_manual_review` behavior
+- [x] Generate worker report
+- [x] Generate architect review
+
+Start condition:
+
+- Phase 6 review verdict is `approve`.
+
+Definition of Done:
+
+- [x] Expected MCP server wrapper files exist
+- [x] Registered tool list includes expected frontend and backend tools
+- [x] Tests pass using plain Python assertions
+- [x] Worker report is complete
+- [x] Architect review verdict is `approve`
