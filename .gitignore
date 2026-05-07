@@ -5,6 +5,9 @@
 # AI orchestration blackboard / runtime logs
 .agent_bus/
 
+# CSEA local-only artifacts
+.agent/*.local.*
+
 # ============================================================
 # Backend MCP Generated Manifests
 # ============================================================
