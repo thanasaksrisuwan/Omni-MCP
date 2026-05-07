@@ -19,7 +19,7 @@ Do not mark a task as `done` without evidence.
 
 ## Current Phase
 
-MCP Server Wrapper / Approved
+MCP Server Wrapper / Committed
 
 ## Phase List
 
@@ -233,8 +233,9 @@ Definition of Done:
 
 ## Next Recommended Action
 
-- Commit Phase 7 MCP Server Wrapper.
+- No next implementation task is currently defined in the roadmap.
 - Last implementation commit: `6c7ec01 เพิ่มระบบสแกนความปลอดภัยตาม SRS`
+- Last MCP server wrapper commit: `959c83b เพิ่ม MCP server wrapper`
 
 ---
 
