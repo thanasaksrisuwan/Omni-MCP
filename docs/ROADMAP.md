@@ -19,7 +19,7 @@ Do not mark a task as `done` without evidence.
 
 ## Current Phase
 
-CORE-001 Omni-Bridge / Approved
+CORE-002 Omni-Scribe / Approved
 
 ## Phase List
 
@@ -233,9 +233,10 @@ Definition of Done:
 
 ## Next Recommended Action
 
-- No next implementation task is currently defined in the roadmap.
+- CORE-002 Omni-Scribe is implemented and approved by Gemini Architect.
 - Last implementation commit: `6c7ec01 เพิ่มระบบสแกนความปลอดภัยตาม SRS`
 - Last MCP server wrapper commit: `959c83b เพิ่ม MCP server wrapper`
+- Last Omni-Bridge commit: `84be298 เพิ่ม Omni-Bridge context pack`
 
 ---
 
@@ -266,6 +267,41 @@ Definition of Done:
 
 - [x] Expected MCP server wrapper files exist
 - [x] Registered tool list includes expected frontend and backend tools
+- [x] Tests pass using plain Python assertions
+- [x] Worker report is complete
+- [x] Architect review verdict is `approve`
+
+---
+
+### Phase 9: CORE-002 Omni-Scribe Write Planning Tool
+
+Status: `done`
+
+Next required action:
+
+- [x] Gemini reviews CORE-002 Omni-Scribe worker output
+
+Tasks:
+
+- [x] Gemini creates CORE-002 Omni-Scribe task spec
+- [x] Create validation-locked `scripts/omni_scribe.py`
+- [x] Expose `omni.scribe_plan_write` through `scripts/mcp_server.py`
+- [x] Add write-plan fixture tests
+- [x] Preserve read-only MVP behavior by writing only `.agent_bus/scribes/` artifacts
+- [x] Run CORE-002 tests and MCP wrapper regression tests
+- [x] Generate worker report
+- [x] Generate architect review
+
+Start condition:
+
+- CORE-001 review verdict is `approve` and commit `84be298` exists.
+
+Definition of Done:
+
+- [x] `omni.scribe_plan_write` never overwrites target files
+- [x] Safe proposed content writes a JSON plan artifact under `.agent_bus/scribes/`
+- [x] Invalid frontend/backend proposed content is blocked by validators
+- [x] Registered tool list includes `omni.scribe_plan_write`
 - [x] Tests pass using plain Python assertions
 - [x] Worker report is complete
 - [x] Architect review verdict is `approve`

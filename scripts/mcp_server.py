@@ -12,7 +12,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from scripts import backend_reservation_safety, backend_scanner, backend_session_scanner, frontend_scanner, omni_bridge
+from scripts import backend_reservation_safety, backend_scanner, backend_session_scanner, frontend_scanner, omni_bridge, omni_scribe
 
 
 ALLOWED_OUTPUT_DIRS = {".frontend-ai", ".backend-ai", ".agent_bus"}
@@ -472,6 +472,27 @@ def omni_bridge_pack_context(
     return safe_call(run)
 
 
+def omni_scribe_plan_write(
+    target_file_path: str,
+    proposed_content: str,
+    project_root: str = ".",
+    frontend_roots: list[str] | None = None,
+    backend_roots: list[str] | None = None,
+    artifact_dir: str = ".agent_bus/scribes",
+) -> dict[str, Any]:
+    def run() -> dict[str, Any]:
+        return omni_scribe.plan_write(
+            target_file_path,
+            proposed_content,
+            project_root=resolve_project_root(project_root),
+            frontend_roots=frontend_roots,
+            backend_roots=backend_roots,
+            artifact_dir=artifact_dir,
+        )
+
+    return safe_call(run)
+
+
 TOOL_SPECS: list[tuple[str, Callable[..., dict[str, Any]], str]] = [
     ("backend.get_session_flow", backend_get_session_flow, "Return session flow details for a backend entrypoint."),
     ("backend.validate_transaction_usage", backend_validate_transaction_usage, "Validate backend transaction usage."),
@@ -495,6 +516,7 @@ TOOL_SPECS: list[tuple[str, Callable[..., dict[str, Any]], str]] = [
     ("frontend.get_layout_patterns", frontend_get_layout_patterns, "Return frontend layout patterns."),
     ("frontend.validate_ui_code", frontend_validate_ui_code, "Validate UI code against manifests."),
     ("omni.bridge_pack_context", omni_bridge_pack_context, "Pack read-only context from generated manifests."),
+    ("omni.scribe_plan_write", omni_scribe_plan_write, "Plan a validation-locked write without touching target files."),
 ]
 
 EXPECTED_TOOL_NAMES = [name for name, _handler, _description in TOOL_SPECS]
