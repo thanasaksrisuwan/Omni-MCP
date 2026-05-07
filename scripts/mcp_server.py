@@ -26,6 +26,7 @@ from scripts import (
     omni_ghost,
     omni_guardian,
     omni_aura,
+    csea_policy_enforcer,
 )
 
 
@@ -601,6 +602,16 @@ def omni_aura_analyze_surface(
     return safe_call(run)
 
 
+def csea_execute_command(
+    command: str,
+    project_root: str = ".",
+) -> dict[str, Any]:
+    def run() -> dict[str, Any]:
+        return csea_policy_enforcer.run_command(command, project_root=resolve_project_root(project_root))
+
+    return safe_call(run)
+
+
 TOOL_SPECS: list[tuple[str, Callable[..., dict[str, Any]], str]] = [
     ("backend.get_session_flow", backend_get_session_flow, "Return session flow details for a backend entrypoint."),
     ("backend.validate_transaction_usage", backend_validate_transaction_usage, "Validate backend transaction usage."),
@@ -633,6 +644,7 @@ TOOL_SPECS: list[tuple[str, Callable[..., dict[str, Any]], str]] = [
     ("omni.ghost_prepare_scenario", omni_ghost_prepare_scenario, "Prepare synthetic seed data for transactional sandbox scenarios."),
     ("omni.guardian_stress_test", omni_guardian_stress_test, "Stress test code against adversarial edge-case data variations."),
     ("omni.aura_analyze_surface", omni_aura_analyze_surface, "Analyze UI component for accessibility, UX patterns, and visual consistency."),
+    ("csea.execute_command", csea_execute_command, "Execute a command securely using CSEA policy enforcer."),
 ]
 
 EXPECTED_TOOL_NAMES = [name for name, _handler, _description in TOOL_SPECS]

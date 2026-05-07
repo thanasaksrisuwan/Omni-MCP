@@ -118,6 +118,26 @@ Do not perform destructive operations.
 
 ---
 
+## CSEA Command Execution Gate
+
+All discovery and shell operations must go through:
+
+```text
+csea.execute_command
+```
+
+Rules:
+
+1. Use `csea.execute_command` for allowlisted discovery commands such as `git status`, `git diff --stat`, and `git rev-parse --show-toplevel`.
+2. Do not bypass CSEA with direct shell execution for command discovery or shell operations.
+3. If `csea.execute_command` returns `blocked`, stop and report the policy violation.
+4. If `csea.execute_command` returns `needs_manual_review`, stop and explain what approval or wrapper support is missing.
+5. Do not use shell chaining, pipes, redirection, destructive commands, DB mutation commands, package installation, or network calls unless a later approved CSEA policy explicitly allows them.
+
+Direct file edits still require the normal scoped patch workflow and do not make `csea.execute_command` optional for shell commands.
+
+---
+
 ## The Omni-Series Protocol (Execution & Safety)
 
 ### Omni-Bridge (Context Orchestration)

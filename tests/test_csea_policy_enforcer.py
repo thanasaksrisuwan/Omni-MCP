@@ -90,6 +90,33 @@ def test_cli_run_git_status() -> None:
     assert payload["returncode"] == 0
 
 
+def test_powershell_discovery_is_allowed() -> None:
+    result = csea_policy_enforcer.validate_command("Get-Content docs/SRS.md", PROJECT_ROOT)
+    assert result["status"] == "ok"
+    assert result["allowed"] is True
+    assert result["allowed_family"] == "powershell-discovery"
+
+
+def test_cli_run_powershell_discovery() -> None:
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "scripts/csea_policy_enforcer.py",
+            "--run",
+            "Get-Content docs/CSEA-SRS.md",
+        ],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert completed.returncode == 0
+    payload = json.loads(completed.stdout)
+    assert payload["status"] == "ok"
+    assert payload["returncode"] == 0
+    assert "Controlled Semi-Autonomous" in payload["stdout"]
+
+
 def main() -> int:
     test_git_status_is_allowed()
     test_blacklisted_rm_is_blocked()
@@ -99,6 +126,8 @@ def main() -> int:
     test_denied_attempt_is_logged(PROJECT_ROOT / ".agent_bus" / "logs" / "csea_policy_test_tmp")
     test_cli_check_json_output()
     test_cli_run_git_status()
+    test_powershell_discovery_is_allowed()
+    test_cli_run_powershell_discovery()
     return 0
 
 
