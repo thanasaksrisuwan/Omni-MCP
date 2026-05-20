@@ -19,6 +19,10 @@ POWERSHELL_COMMANDS = {"Get-Location", "Get-ChildItem", "Get-Content", "Select-S
 POSIX_COMMANDS = {"pwd", "ls", "cat", "grep"}
 AGENT_COMMANDS = {"gemini", "codex"}
 GIT_STATUS_FLAGS = {"--short", "-s", "--porcelain", "--branch"}
+SELF_VERIFICATION_COMMANDS = {
+    ("python", "scripts/mcp_server.py", "--list-tools"),
+}
+REVIEW_WRAPPER_HOSTS = {"powershell", "powershell.exe", "pwsh", "pwsh.exe"}
 
 
 def utc_now() -> str:
@@ -177,6 +181,48 @@ def validate_git(tokens: list[str]) -> str | None:
     return f"git subcommand is not allowlisted: {subcommand}"
 
 
+def validate_review_wrapper(tokens: list[str]) -> str | None:
+    if len(tokens) < 9:
+        return "review wrapper command is incomplete."
+
+    if tokens[1].lower() != "-executionpolicy" or tokens[2].lower() != "bypass":
+        return "review wrapper must use -ExecutionPolicy Bypass."
+    if tokens[3].lower() != "-file":
+        return "review wrapper must use -File."
+    script_path = normalize_path_token(tokens[4]).replace("\\", "/").lower()
+    if script_path != "scripts/ai_review_gemini.ps1":
+        return "only scripts/ai_review_gemini.ps1 is allowlisted for powershell."
+
+    allowed_flags = {"-reportpath", "-taskname", "-model", "-dryrun", "-noskiptrust"}
+    flag_values = {"-reportpath", "-taskname", "-model"}
+    index = 5
+    seen: dict[str, str] = {}
+    while index < len(tokens):
+        flag = tokens[index].lower()
+        if flag not in allowed_flags:
+            return f"review wrapper flag is not allowlisted: {tokens[index]}"
+        if flag in flag_values:
+            if index + 1 >= len(tokens):
+                return f"review wrapper flag requires a value: {tokens[index]}"
+            seen[flag] = tokens[index + 1]
+            index += 2
+            continue
+        seen[flag] = "true"
+        index += 1
+
+    report_path = seen.get("-reportpath")
+    task_name = seen.get("-taskname")
+    if not report_path or not task_name:
+        return "review wrapper requires -ReportPath and -TaskName."
+
+    normalized_report = normalize_path_token(report_path).replace("\\", "/").lower()
+    if not normalized_report.startswith(".agent_bus/reports/") or not normalized_report.endswith("_worker_report.md"):
+        return "review wrapper report path must be under .agent_bus/reports/*_worker_report.md."
+    if not all(char.isalnum() or char in {"_", "-", "."} for char in task_name):
+        return "review wrapper task name contains unsupported characters."
+    return None
+
+
 def validate_command(command: str, project_root: str | Path | None = None) -> dict[str, Any]:
     root = resolve_project_root(project_root)
     git_root = resolve_git_root(root)
@@ -204,6 +250,13 @@ def validate_command(command: str, project_root: str | Path | None = None) -> di
         allowed_family = "posix-discovery"
     elif executable in AGENT_COMMANDS:
         allowed_family = "agent-orchestration"
+    elif executable.lower() in REVIEW_WRAPPER_HOSTS:
+        review_error = validate_review_wrapper(tokens)
+        if review_error:
+            return blocked(command, review_error, git_root)
+        allowed_family = "review-wrapper"
+    elif tuple(tokens) in SELF_VERIFICATION_COMMANDS:
+        allowed_family = "self-verification"
     elif executable == "command":
         if len(tokens) >= 3 and tokens[1] == "-v":
             allowed_family = "posix-discovery"
@@ -265,8 +318,8 @@ def run_command(command: str, project_root: str | Path | None = None) -> dict[st
         return validation
 
     argv = validation["argv"]
-    if validation.get("allowed_family") == "powershell-discovery":
-        # Approved host wrapper for PowerShell discovery cmdlets
+    if validation.get("allowed_family") in {"powershell-discovery", "agent-orchestration"}:
+        # Approved host wrapper for PowerShell discovery cmdlets and Agent commands
         wrapped_argv = ["powershell", "-NoProfile", "-NonInteractive", "-Command", command]
         try:
             completed = subprocess.run(
@@ -302,7 +355,7 @@ def run_command(command: str, project_root: str | Path | None = None) -> dict[st
             capture_output=True,
             text=True,
             shell=False,
-            timeout=30,
+            timeout=180 if validation.get("allowed_family") == "review-wrapper" else 30,
             check=False,
         )
     except OSError as exc:

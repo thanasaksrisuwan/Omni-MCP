@@ -306,14 +306,22 @@ def has_keyword_name(call: ast.Call, keyword_name: str) -> bool:
 def unique_constraints(tree: ast.AST) -> list[list[str]]:
     constraints: list[list[str]] = []
     for node in ast.walk(tree):
+        if isinstance(node, ast.Assign) and isinstance(node.value, ast.Call):
+            name = dotted_name(node.value.func)
+            if name and name.endswith("Column") and has_keyword_name(node.value, "unique"):
+                for target in node.targets:
+                    column_name = dotted_name(target)
+                    if column_name:
+                        constraints.append([column_name.split(".")[-1]])
+            continue
+
         if not isinstance(node, ast.Call):
             continue
         name = dotted_name(node.func)
-        if not name or not name.endswith("UniqueConstraint"):
-            continue
-        values = [value for value in (string_value(arg) for arg in node.args) if value]
-        if values:
-            constraints.append(values)
+        if name and name.endswith("UniqueConstraint"):
+            values = [value for value in (string_value(arg) for arg in node.args) if value]
+            if values:
+                constraints.append(values)
     return constraints
 
 
@@ -680,7 +688,40 @@ def analyze_file(file_path: Path, project_root: Path) -> list[FunctionAnalysis]:
                 )
             )
 
+    if constraints and not analyses:
+        analyses.append(
+            FunctionAnalysis(
+                name="__module_constraints__",
+                source_file=source_file,
+                line=1,
+                is_async=False,
+                route_method=None,
+                route_path=None,
+                parameters=[],
+                idempotency_parameters=[],
+                transitions=[],
+                outbox_events=[],
+                side_effects=[],
+                invariant_signals=[],
+                status_guards=set(),
+                calls=set(),
+                unique_constraints=constraints,
+                enum_status_classes=status_classes,
+                confidence=0.8,
+            )
+        )
+
     return analyses
+
+
+def model_unique_constraints(files: list[Path]) -> list[list[str]]:
+    constraints: list[list[str]] = []
+    for file_path in files:
+        if file_path.name != "models.py":
+            continue
+        tree = ast.parse(file_path.read_text(encoding="utf-8"), filename=str(file_path))
+        constraints.extend(unique_constraints(tree))
+    return constraints
 
 
 def issue(
@@ -739,10 +780,21 @@ def validate_state_analyses(analyses: list[FunctionAnalysis]) -> list[Validation
 
 def validate_idempotency_analyses(analyses: list[FunctionAnalysis]) -> list[ValidationIssue]:
     issues: list[ValidationIssue] = []
+    critical_create_count = sum(
+        1
+        for analysis in analyses
+        if route_is_critical_create(analysis.route_method, analysis.route_path, analysis.name)
+    )
+    unique_key_visible = any(
+        has_unique_idempotency_key(analysis.unique_constraints) for analysis in analyses
+    )
     for analysis in analyses:
         if not route_is_critical_create(analysis.route_method, analysis.route_path, analysis.name):
             continue
         signals = signal_names(analysis)
+        route_unique_key_visible = has_unique_idempotency_key(analysis.unique_constraints) or (
+            critical_create_count == 1 and unique_key_visible
+        )
         if not analysis.idempotency_parameters:
             issues.append(
                 issue(
@@ -763,7 +815,7 @@ def validate_idempotency_analyses(analyses: list[FunctionAnalysis]) -> list[Vali
                     confidence=0.9,
                 )
             )
-        if not has_unique_idempotency_key(analysis.unique_constraints):
+        if not route_unique_key_visible:
             issues.append(
                 issue(
                     "IDEMP003",
@@ -887,10 +939,21 @@ def state_machine_record(analyses: list[FunctionAnalysis], issues: list[Validati
 
 def idempotency_records(analyses: list[FunctionAnalysis]) -> list[dict[str, Any]]:
     records: list[dict[str, Any]] = []
+    critical_create_count = sum(
+        1
+        for analysis in analyses
+        if route_is_critical_create(analysis.route_method, analysis.route_path, analysis.name)
+    )
+    unique_key_visible = any(
+        has_unique_idempotency_key(analysis.unique_constraints) for analysis in analyses
+    )
     for analysis in analyses:
         if not route_is_critical_create(analysis.route_method, analysis.route_path, analysis.name):
             continue
         signals = signal_names(analysis)
+        route_unique_key_visible = has_unique_idempotency_key(analysis.unique_constraints) or (
+            critical_create_count == 1 and unique_key_visible
+        )
         records.append(
             asdict(
                 IdempotencyCheck(
@@ -903,7 +966,7 @@ def idempotency_records(analyses: list[FunctionAnalysis]) -> list[dict[str, Any]
                     accepts_idempotency_key=bool(analysis.idempotency_parameters),
                     persists_idempotency_key="idempotency_persisted" in signals,
                     returns_existing_result="idempotency_lookup" in signals,
-                    unique_key_visible=has_unique_idempotency_key(analysis.unique_constraints),
+                    unique_key_visible=route_unique_key_visible,
                     confidence=0.9,
                 )
             )
@@ -917,6 +980,12 @@ def generate_manifests(project_root: Path, output_dir: Path, roots: list[Path] |
     analyses: list[FunctionAnalysis] = []
     for file_path in files:
         analyses.extend(analyze_file(file_path, project_root))
+    model_constraints = model_unique_constraints(files)
+    if model_constraints:
+        for analysis in analyses:
+            for constraint in model_constraints:
+                if constraint not in analysis.unique_constraints:
+                    analysis.unique_constraints.append(constraint)
 
     if not files:
         warnings.append("No Python backend files were scanned; reservation safety is not proven")

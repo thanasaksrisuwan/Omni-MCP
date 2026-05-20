@@ -71,8 +71,10 @@ def main() -> int:
     assert validate_reservation_invariants(safe_invariants)["status"] == "ok"
 
     with tempfile.TemporaryDirectory() as tmp:
+        empty_project_root = Path(tmp) / "empty_project"
+        empty_project_root.mkdir()
         empty_output_dir = Path(tmp) / "empty"
-        empty = generate_manifests(PROJECT_ROOT, empty_output_dir, None)
+        empty = generate_manifests(empty_project_root, empty_output_dir, None)
 
     assert empty["state_machines"]["status"] == "needs_manual_review"
     assert empty["state_machines"]["risk"] == "unknown"

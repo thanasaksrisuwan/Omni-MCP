@@ -16,7 +16,7 @@
     "outbox_events"
   ],
   "fallback_parser": "ast",
-  "generated_at": "2026-05-05T10:40:19.536250Z",
+  "generated_at": "2026-05-08T07:31:53.459508Z",
   "preferred_parser": "libcst",
   "project_root": "C:\\Users\\Nack\\mcp",
   "route_methods": [

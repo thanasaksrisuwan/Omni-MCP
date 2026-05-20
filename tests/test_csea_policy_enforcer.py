@@ -129,6 +129,42 @@ def test_agent_orchestration_is_allowed() -> None:
     assert result["allowed_family"] == "agent-orchestration"
 
 
+def test_mcp_tool_list_self_verification_is_allowed() -> None:
+    result = csea_policy_enforcer.validate_command("python scripts/mcp_server.py --list-tools", PROJECT_ROOT)
+    assert result["status"] == "ok"
+    assert result["allowed"] is True
+    assert result["allowed_family"] == "self-verification"
+
+
+def test_gemini_review_wrapper_is_allowed() -> None:
+    result = csea_policy_enforcer.validate_command(
+        "powershell -ExecutionPolicy Bypass -File scripts/ai_review_gemini.ps1 "
+        "-ReportPath .agent_bus/reports/csea_p2_002_worker_report.md "
+        "-TaskName csea_p2_002",
+        PROJECT_ROOT,
+    )
+    assert result["status"] == "ok"
+    assert result["allowed"] is True
+    assert result["allowed_family"] == "review-wrapper"
+
+
+def test_other_powershell_scripts_are_blocked() -> None:
+    result = csea_policy_enforcer.validate_command(
+        "powershell -ExecutionPolicy Bypass -File scripts/unknown.ps1 "
+        "-ReportPath .agent_bus/reports/csea_p2_002_worker_report.md "
+        "-TaskName csea_p2_002",
+        PROJECT_ROOT,
+    )
+    assert result["status"] == "blocked"
+    assert "ai_review_gemini" in result["reason"]
+
+
+def test_arbitrary_python_is_blocked() -> None:
+    result = csea_policy_enforcer.validate_command("python -c 'print(1)'", PROJECT_ROOT)
+    assert result["status"] == "blocked"
+    assert "not allowlisted" in result["reason"]
+
+
 def main() -> int:
     test_git_status_is_allowed()
     test_blacklisted_rm_is_blocked()
@@ -141,6 +177,10 @@ def main() -> int:
     test_powershell_discovery_is_allowed()
     test_cli_run_powershell_discovery()
     test_agent_orchestration_is_allowed()
+    test_mcp_tool_list_self_verification_is_allowed()
+    test_gemini_review_wrapper_is_allowed()
+    test_other_powershell_scripts_are_blocked()
+    test_arbitrary_python_is_blocked()
     return 0
 
 
